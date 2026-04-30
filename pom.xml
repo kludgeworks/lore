@@ -34,8 +34,8 @@
 
         <dependency>
             <groupId>com.embabel.agent</groupId>
-            <artifactId>embabel-agent-rag-neo-drivine</artifactId>
-            <version>0.1.2-SNAPSHOT</version>
+            <artifactId>embabel-agent-rag-graph</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.drivine</groupId>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.drivine</groupId>
             <artifactId>drivine4j-spring-boot-starter</artifactId>
-            <version>0.0.29</version>
+            <version>0.0.38</version>
         </dependency>
 
         <!-- Chat session storage with autoconfiguration -->

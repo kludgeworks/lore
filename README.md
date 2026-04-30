@@ -45,6 +45,45 @@ To see stats on data, make a GET request or browse to http://localhost:1337/api/
 
 RAG content storage uses the `ChunkingContentElementRepository` interface from the `embabel-agent-rag-core` library. The default backend is Neo4j via `DrivineStore`. You can plug in other backends by providing a different `ChunkingContentElementRepository` bean.
 
+## Switching the Graph Database
+
+`DrivineStore` (from `embabel-agent-rag-graph`) supports three Cypher-speaking backends: **Neo4j** (default), **FalkorDB**, and **Memgraph**. The active backend is selected by Spring profile in `src/main/resources/application.yml` — each profile sets `database.dataSources.neo.type`, and `RagConfiguration` picks the matching `RagDialect` at startup.
+
+| Backend  | Profile    | Default port | Compose profile |
+|----------|------------|--------------|-----------------|
+| Neo4j    | `neo4j`    | `7687` (bolt)| `neo4j`         |
+| FalkorDB | `falkordb` | `6379`       | `falkordb`      |
+| Memgraph | `memgraph` | `7688` (bolt)| `memgraph`      |
+
+### Switching at startup
+
+Change `spring.profiles.active` in `application.yml`, or override at launch:
+
+```bash
+# Neo4j (default)
+./mvnw spring-boot:run -Dspring-boot.run.profiles=neo4j
+
+# FalkorDB
+./mvnw spring-boot:run -Dspring-boot.run.profiles=falkordb
+
+# Memgraph
+./mvnw spring-boot:run -Dspring-boot.run.profiles=memgraph
+```
+
+### Starting the matching container
+
+```bash
+docker compose --profile neo4j   up -d   # or falkordb / memgraph
+```
+
+Memgraph maps host port `7688` → container `7687` to avoid clashing with Neo4j, so you can run them side-by-side. FalkorDB uses Redis protocol on `6379`.
+
+### Browsing data
+
+- **Neo4j**: http://localhost:7474/browser/ (user `neo4j`, password `brahmsian`)
+- **FalkorDB**: http://localhost:3001 (FalkorDB Browser, started with the `falkordb` compose profile)
+- **Memgraph**: connect via [Memgraph Lab](https://memgraph.com/lab) to `bolt://localhost:7688`
+
 ## Viewing and Deleting Data
 
 Go to the Neo Browser at http://localhost:7474/browser/

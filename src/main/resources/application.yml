@@ -108,10 +108,10 @@ spring:
     ansi:
       enabled: always
   profiles:
-    active: local  # Change to 'default' in tests to use TestContainers datasource
+    active: neo4j  # Change to 'neo4j', 'falkordb', 'memgraph', or 'default' for TestContainers
     config:
       activate:
-        on-profile: local
+        on-profile: neo4j
 
 
 # RAG Adapter Configuration (use "guide" to enable real Guide chatbot, "fake" for testing)
@@ -140,7 +140,7 @@ embabel:
             cache-dir: ${user.home}/.embabel/models
 
     rag:
-      neo:
+      graph:
         uri: ${NEO4J_URI:bolt://localhost:7687}
         username: ${NEO4J_USERNAME:neo4j}
         password: ${NEO4J_PASSWORD:brahmsian}
@@ -171,7 +171,7 @@ logging:
     org.springframework.messaging: INFO
     com.embabel.guide.chat: DEBUG
 
-# Data-source below is used then the 'local' config is active
+# Data-source below is used when the 'neo4j' profile is active (default)
 
 database:
   dataSources:
@@ -183,3 +183,37 @@ database:
       port: 7687
       protocol: ${NEO4J_PROTOCOL:bolt}
       databaseName: neo4j
+
+---
+# FalkorDB profile — activate with: spring.profiles.active=falkordb
+spring:
+  config:
+    activate:
+      on-profile: falkordb
+
+database:
+  dataSources:
+    neo:
+      type: FALKORDB
+      host: ${FALKORDB_HOST:localhost}
+      port: ${FALKORDB_PORT:6379}
+      databaseName: embabel
+
+---
+# Memgraph profile — activate with: spring.profiles.active=memgraph
+# Memgraph speaks Bolt; the docker-compose service maps host port 7688 to container 7687
+# to avoid clashing with neo4j.
+spring:
+  config:
+    activate:
+      on-profile: memgraph
+
+database:
+  dataSources:
+    neo:
+      type: MEMGRAPH
+      host: ${MEMGRAPH_HOST:localhost}
+      port: ${MEMGRAPH_BOLT_PORT:7688}
+      userName: ""
+      password: ""
+      databaseName: memgraph

@@ -1,6 +1,6 @@
 package com.embabel.guide.rag
 
-import com.embabel.agent.rag.neo.drivine.model.ContentElementRepositoryInfoImpl
+import com.embabel.agent.rag.graph.model.ContentElementRepositoryInfoImpl
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*

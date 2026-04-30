@@ -27,11 +27,13 @@ import com.embabel.agent.rag.ingestion.TikaHierarchicalContentReader;
 import kotlin.Pair;
 
 import java.util.ArrayList;
-import com.embabel.agent.rag.neo.drivine.DrivineCypherSearch;
-import com.embabel.agent.rag.neo.drivine.DrivineStore;
-import com.embabel.agent.rag.neo.drivine.NeoRagServiceProperties;
+import com.embabel.agent.rag.graph.DrivineCypherSearch;
+import com.embabel.agent.rag.graph.DrivineStore;
+import com.embabel.agent.rag.graph.GraphRagServiceProperties;
+import com.embabel.agent.rag.graph.dialect.RagDialect;
 import com.embabel.common.ai.model.EmbeddingService;
 import com.embabel.guide.GuideProperties;
+import org.drivine.connection.DataSourceMap;
 import org.drivine.manager.PersistenceManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -50,7 +52,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * runs first so the EmbeddingService bean exists when this configuration is wired.
  */
 @Configuration
-@EnableConfigurationProperties(NeoRagServiceProperties.class)
+@EnableConfigurationProperties(GraphRagServiceProperties.class)
 @DependsOn("onnxEmbeddingInitializer")
 class RagConfiguration {
 
@@ -85,19 +87,23 @@ class RagConfiguration {
             PlatformTransactionManager platformTransactionManager,
             EmbeddingService embeddingService,
             ChunkTransformer chunkTransformer,
-            NeoRagServiceProperties neoRagProperties,
-            GuideProperties guideProperties) {
+            GraphRagServiceProperties graphRagProperties,
+            GuideProperties guideProperties,
+            DataSourceMap dataSourceMap) {
         var chunkerConfig = guideProperties.getChunkerConfig() != null
                 ? guideProperties.getChunkerConfig()
                 : new ContentChunker.Config();
+        var databaseType = dataSourceMap.getDataSources().get("neo").getType();
+        var dialect = RagDialect.Companion.forDatabaseType(databaseType);
         return new DrivineStore(
                 persistenceManager,
-                neoRagProperties,
+                graphRagProperties,
                 chunkerConfig,
                 chunkTransformer,
                 embeddingService,
                 platformTransactionManager,
-                new DrivineCypherSearch(persistenceManager)
+                new DrivineCypherSearch(persistenceManager),
+                dialect
         );
     }
 }

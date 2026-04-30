@@ -5,7 +5,7 @@ import com.embabel.agent.api.annotation.EmbabelComponent
 import com.embabel.agent.api.common.ActionContext
 import com.embabel.agent.api.common.PromptRunner
 import com.embabel.agent.api.identity.User
-import com.embabel.agent.rag.neo.drivine.DrivineStore
+import com.embabel.agent.rag.graph.DrivineStore
 import com.embabel.agent.filter.PropertyFilter
 import com.embabel.agent.rag.tools.ToolishRag
 import com.embabel.agent.rag.tools.TryHyDE
