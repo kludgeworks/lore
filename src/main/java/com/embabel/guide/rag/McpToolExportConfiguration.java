@@ -34,7 +34,7 @@ class McpToolExportConfiguration {
             );
             toolishRag = toolishRag.withMetadataFilter(versionFilter);
         }
-        return McpToolExport.fromLlmReference(
+        return SafeSearchTools.exportSafeTools(
                 toolishRag,
                 properties.toolNamingStrategy()
         );
