@@ -42,6 +42,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
+import org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator;
+import java.util.Properties;
 
 /**
  * Configuration for RAG (Retrieval Augmented Generation) components.
@@ -105,5 +108,21 @@ class RagConfiguration {
                 new DrivineCypherSearch(persistenceManager),
                 dialect
         );
+    }
+
+    @Bean
+    public BeanNameAutoProxyCreator transactionalProxyCreator() {
+        var creator = new BeanNameAutoProxyCreator();
+        creator.setBeanNames("drivineStore");
+        creator.setInterceptorNames("drivineTransactionInterceptor");
+        creator.setProxyTargetClass(true);
+        return creator;
+    }
+
+    @Bean
+    public TransactionInterceptor drivineTransactionInterceptor(PlatformTransactionManager transactionManager) {
+        var attributes = new Properties();
+        attributes.setProperty("*", "PROPAGATION_REQUIRED");
+        return new TransactionInterceptor(transactionManager, attributes);
     }
 }
