@@ -150,6 +150,8 @@ embabel:
     mcp:
       server:
         protocol: SSE
+        sse:
+          keep-alive-interval: 30s
 
 logging:
   level:
