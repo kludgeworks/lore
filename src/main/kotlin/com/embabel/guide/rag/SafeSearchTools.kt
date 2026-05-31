@@ -11,14 +11,16 @@ class SafeSearchTools(private val toolishRag: ToolishRag) {
     @LlmTool(name = "docs_vectorSearch", description = "Perform vector search safely. Specify topK and similarity threshold from 0-1")
     fun safeVectorSearch(
         query: String,
-        @LlmTool.Param(description = "topK", required = false) topK: Int = 10,
-        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: ZeroToOne = 0.7
+        @LlmTool.Param(description = "topK", required = false) topK: Int?,
+        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: Double?
     ): String {
+        val actualTopK = topK ?: 10
+        val actualThreshold = threshold ?: 0.7
         val tool = toolishRag.tools().find { it.definition.name.endsWith("vectorSearch") }
             ?: return "Error: vectorSearch tool not found in ToolishRag"
         
         val safeQuery = query.replace("\"", "\\\"").replace("\n", "\\n")
-        val input = """{"query": "$safeQuery", "topK": $topK, "threshold": $threshold}"""
+        val input = """{"query": "$safeQuery", "topK": $actualTopK, "threshold": $actualThreshold}"""
         val result = tool.call(input)
         return if (result is com.embabel.agent.api.tool.Tool.Result.Text) result.content else result.toString()
     }
@@ -26,14 +28,16 @@ class SafeSearchTools(private val toolishRag: ToolishRag) {
     @LlmTool(name = "docs_textSearch", description = "Perform text search safely. Specify topK and similarity threshold from 0-1")
     fun safeTextSearch(
         query: String,
-        @LlmTool.Param(description = "topK", required = false) topK: Int = 10,
-        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: ZeroToOne = 0.7
+        @LlmTool.Param(description = "topK", required = false) topK: Int?,
+        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: Double?
     ): String {
+        val actualTopK = topK ?: 10
+        val actualThreshold = threshold ?: 0.7
         val tool = toolishRag.tools().find { it.definition.name.endsWith("textSearch") }
             ?: return "Error: textSearch tool not found in ToolishRag"
         
         val safeQuery = query.replace("\"", "\\\"").replace("\n", "\\n")
-        val input = """{"query": "$safeQuery", "topK": $topK, "threshold": $threshold}"""
+        val input = """{"query": "$safeQuery", "topK": $actualTopK, "threshold": $actualThreshold}"""
         val result = tool.call(input)
         return if (result is com.embabel.agent.api.tool.Tool.Result.Text) result.content else result.toString()
     }
