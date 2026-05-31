@@ -11,8 +11,8 @@ class SafeSearchTools(private val toolishRag: ToolishRag) {
     @LlmTool(name = "docs_vectorSearch", description = "Perform vector search safely. Specify topK and similarity threshold from 0-1")
     fun safeVectorSearch(
         query: String,
-        @LlmTool.Param(description = "topK", required = false) topK: Int?,
-        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: Double?
+        @LlmTool.Param(description = "topK", required = false) topK: Int? = null,
+        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: Double? = null
     ): String {
         val actualTopK = topK ?: 10
         val actualThreshold = threshold ?: 0.7
@@ -28,8 +28,8 @@ class SafeSearchTools(private val toolishRag: ToolishRag) {
     @LlmTool(name = "docs_textSearch", description = "Perform text search safely. Specify topK and similarity threshold from 0-1")
     fun safeTextSearch(
         query: String,
-        @LlmTool.Param(description = "topK", required = false) topK: Int?,
-        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: Double?
+        @LlmTool.Param(description = "topK", required = false) topK: Int? = null,
+        @LlmTool.Param(description = "similarity threshold from 0-1", required = false) threshold: Double? = null
     ): String {
         val actualTopK = topK ?: 10
         val actualThreshold = threshold ?: 0.7
