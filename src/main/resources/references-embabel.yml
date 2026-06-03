@@ -1,12 +1,3 @@
-# References shared for all users, in addition to RAG.
-# These provide agent tool access (code browsing, API lookup) on demand.
-#
-# For eagerly-ingested content (blog posts, articles, docs),
-# see guide.content.supplementary in application.yml.
-#
-# Note: Profile-specific tools (embabel or ddd) are defined in 
-# references-embabel.yml and references-ddd.yml respectively.
-
 # ─── Embabel Framework (Core) ────────────────────────────────────────────────────────
 
 - fqn: com.embabel.coding.tools.git.GitHubRepository
@@ -40,3 +31,27 @@
   description: >
     Drivine4j: Graph database connectivity library for the JVM.
     Used by Embabel for Neo4j persistence.
+
+# ─── Embabel Examples ─────────────────────────────────────────────────────────
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/java-agent-template.git
+  description: >
+    Java agent template: simplest Java example with Maven.
+    Can be used as a GitHub template.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/tripper.git
+  description: Tripper — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/urbot.git
+  description: urbot — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/impromptu.git
+  description: impromptu — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/dice.git
+  description: dice — example Embabel application.

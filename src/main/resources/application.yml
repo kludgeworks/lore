@@ -55,42 +55,6 @@ guide:
       base-url: https://docs.embabel.com/embabel-agent/guide/
       versions:
         - 0.4.0-SNAPSHOT
-    supplementary:
-      - https://raw.githubusercontent.com/liberation-data/drivine4j/refs/heads/main/README.md
-      # @springrod blog posts
-      - https://medium.com/@springrod/embabel-a-new-agent-platform-for-the-jvm-1c83402e0014
-      - https://medium.com/@springrod/production-ready-gen-ai-beyond-the-python-prototype-439bf213a8c0
-      - https://medium.com/@springrod/building-reliable-agentic-systems-part-i-b056d5b59392
-      - https://medium.com/@springrod/the-embabel-vision-967654f13793
-      - https://medium.com/@springrod/ai-for-your-gen-ai-how-and-why-embabel-plans-3930244218f6
-      - https://medium.com/@springrod/build-better-agents-in-java-vs-python-embabel-vs-langgraph-f7951a0d855c
-      - https://medium.com/@springrod/ground-your-ai-transformation-on-what-works-today-bfc525418118
-      - https://medium.com/@springrod/from-alchemy-to-engineering-building-type-safe-gen-ai-applications-with-embabel-c3d89b7c989f
-      - https://medium.com/@springrod/building-a-chatbot-with-embabel-agentic-rag-b26a8346cb16
-      - https://medium.com/@springrod/rethinking-rag-pipelines-are-the-past-agentic-is-the-future-77c887414621
-      - https://medium.com/@springrod/dont-talk-english-to-your-llm-ecbfe954bea1
-      - https://medium.com/@springrod/why-you-should-use-local-models-a3fce1124c94
-      - https://medium.com/@springrod/you-can-build-better-ai-agents-in-java-than-python-868eaf008493
-      - https://medium.com/@springrod/embabel-year-end-update-building-the-best-agent-framework-25ed98728e79
-      - https://medium.com/@springrod/building-stateful-ai-agents-how-to-create-interactive-mcp-tools-with-embabel-0dfbd3037cf7
-      - https://medium.com/@springrod/context-engineering-needs-domain-understanding-b4387e8e4bf8
-      - https://medium.com/the-composition/software-that-writes-and-evolves-software-953578a6fc36
-      # Embabel publication
-      - https://medium.com/embabel/agent-memory-is-not-a-greenfield-problem-ground-it-in-your-existing-data-9272cabe1561
-      # @jasper.blues / Embabel publication
-      - https://medium.com/embabel/from-docs-to-dialog-2b613901db60
-      - https://medium.com/embabel/the-very-slowly-ticking-time-bomb-in-your-graph-persistence-stack-6da1a8da9515
-      - https://medium.com/embabel/the-voice-the-word-and-the-wheel-d6e2ef2ab26e
-      # @odrotbohm — architecture & Spring
-      - https://odrotbohm.de/2025/12/rethinking-spring-application-integration-testing/
-      - https://odrotbohm.de/2025/11/jmolecules-2.0-stereotypical/
-      - https://odrotbohm.de/2024/09/the-instability-abstractness-relationsship-an-alternative-view/
-      - https://odrotbohm.de/2023/07/sliced-onion-architecture/
-      - https://odrotbohm.github.io/2016/10/evolving-distributed-systems/
-      - https://odrotbohm.github.io/2016/04/benefits-of-hypermedia/
-      - https://odrotbohm.github.io/2013/01/whoops-where-did-my-architecture-go/
-      # @martinfowler
-      - https://martinfowler.com/bliki/BoundedContext.html
 
   # Route specific URL patterns through alternate fetchers.
   # Medium is handled programmatically by MediumArchiveContentFetcher
@@ -105,16 +69,8 @@ guide:
 
   # Remote Git repositories to shallow-clone and ingest on startup.
   # Use `tag:` to pin a library to a specific release; omit for example apps (tracks main).
-  repositories:
-    # Libraries — pin to a specific release tag once stabilised
-    - url: https://github.com/spring-projects/spring-ai.git
-      # tag: 1.0.0
-    # Example applications — main is sufficient
-    - url: https://github.com/embabel/shepherd.git
-    - url: https://github.com/embabel/ragbot.git
-    - url: https://github.com/embabel/embabel-agent-examples.git
-    - url: https://github.com/embabel/impromptu.git
-    - url: https://github.com/embabel/tripper.git
+  # Kept empty in the base config — populate via profiles (e.g. application-embabel.yml).
+  repositories: []
 
   tool-groups:
 

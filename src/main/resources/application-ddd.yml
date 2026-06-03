@@ -1,0 +1,20 @@
+guide:
+  references-file: references-ddd.yml
+  content:
+    supplementary:
+      # @odrotbohm — architecture & Spring
+      - https://odrotbohm.de/2025/12/rethinking-spring-application-integration-testing/
+      - https://odrotbohm.de/2025/11/jmolecules-2.0-stereotypical/
+      - https://odrotbohm.de/2024/09/the-instability-abstractness-relationsship-an-alternative-view/
+      - https://odrotbohm.de/2023/07/sliced-onion-architecture/
+      - https://odrotbohm.github.io/2016/10/evolving-distributed-systems/
+      - https://odrotbohm.github.io/2016/04/benefits-of-hypermedia/
+      - https://odrotbohm.github.io/2013/01/whoops-where-did-my-architecture-go/
+      # @martinfowler
+      - https://martinfowler.com/bliki/BoundedContext.html
+
+  repositories:
+    - url: https://github.com/spring-projects/spring-ai.git
+      # tag: 1.0.0
+    - url: https://github.com/odrotbohm/spring-restbucks.git
+    - url: https://github.com/odrotbohm/arch-evident-spring.git
