@@ -35,6 +35,16 @@ data class ContentConfig(
 }
 
 /**
+ * Configuration for a Git repository to ingest.
+ */
+data class RepositoryConfig(
+    val url: String,
+    val tag: String? = null,
+    val description: String? = null,
+    val fqn: String? = null
+)
+
+/**
  * Configuration properties for the Guide application.
  *
  * @param reloadContentOnStartup whether to reload RAG content on startup
@@ -64,6 +74,7 @@ data class GuideProperties(
     @DefaultValue("")
     val toolPrefix: String,
     val directories: List<String>?,
+    val repositories: List<RepositoryConfig> = emptyList(),
     val toolGroups: Set<String>,
     val fetchRoutes: List<FetchRoute> = emptyList(),
 ) {

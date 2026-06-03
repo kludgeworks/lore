@@ -1,51 +1,29 @@
-# References shared for all users, in addition to RAG
+# References shared for all users, in addition to RAG.
+# These provide agent tool access (code browsing, API lookup) on demand.
+#
+# For eagerly-ingested content (blog posts, articles, docs),
+# see guide.content.supplementary in application.yml.
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/embabel/embabel-agent-examples.git
-  description: >
-    Embabel examples Repository
-    This is the best source of examples of Embabel usage
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/embabel/java-agent-template.git
-  description: >
-    Java agent template Repository: Simplest Java example with Maven
-    Can be used as a GitHub template
+# ─── Embabel Framework ────────────────────────────────────────────────────────
 
 - fqn: com.embabel.coding.tools.git.GitHubRepository
   url: https://github.com/embabel/embabel-agent.git
   description: >
-    Embabel agent framework implementation repo
-    Look to check code under embabel-agent-api
-    For questions related to framework internals, not usage examples
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/embabel/ragbot.git
-  description: >
-    Example of a RAG chatbot. Use for RAG and chat reference
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/embabel/shepherd.git
-  description: >
-    Utility AI example
+    Embabel agent framework implementation repo.
+    Look to check code under embabel-agent-api.
+    For questions related to framework internals, not usage examples.
 
 - fqn: com.embabel.coding.tools.git.GitHubRepository
   url: https://github.com/embabel/embabel-chat-store.git
   description: >
-    Embabel chat store implementation
-    Chat session persistence and history management
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/liberation-data/drivine4j.git
-  description: >
-    Drivine4j: Graph database connectivity library for the JVM
-    Used by Embabel for Neo4j persistence
+    Embabel chat store implementation.
+    Chat session persistence and history management.
 
 - fqn: com.embabel.coding.tools.git.GitHubRepository
   url: https://github.com/embabel/embabel-agent-rag-neo-drivine.git
   description: >
-    Embabel RAG Neo4j integration using Drivine
-    RAG vector store implementation backed by Neo4j
+    Embabel RAG Neo4j integration using Drivine.
+    RAG vector store implementation backed by Neo4j.
 
 - fqn: com.embabel.coding.tools.api.ApiReferenceProvider
   name: embabel-agent
@@ -53,3 +31,87 @@
   acceptedPackages:
     - com.embabel.agent
     - com.embabel.common
+
+# ─── Embabel Examples ─────────────────────────────────────────────────────────
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/java-agent-template.git
+  description: >
+    Java agent template: simplest Java example with Maven.
+    Can be used as a GitHub template.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/embabel-agent-examples.git
+  description: Embabel agent examples — usage patterns and sample implementations.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/ragbot.git
+  description: Example of a RAG chatbot. Use for RAG and chat reference.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/shepherd.git
+  description: Utility AI example.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/tripper.git
+  description: Tripper — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/urbot.git
+  description: urbot — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/impromptu.git
+  description: impromptu — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/dice.git
+  description: dice — example Embabel application.
+
+# ─── Key Dependencies ─────────────────────────────────────────────────────────
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/liberation-data/drivine4j.git
+  description: >
+    Drivine4j: Graph database connectivity library for the JVM.
+    Used by Embabel for Neo4j persistence.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/spring-projects/spring-ai.git
+  description: Spring AI — AI integration library for Spring applications.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/spring-projects/spring-modulith.git
+  description: Spring Modulith — opinionated application modularisation for Spring Boot.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/xmolecules/jmolecules.git
+  description: jMolecules — libraries to express architectural abstractions in Java.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/xmolecules/jmolecules-integrations.git
+  description: jMolecules Integrations — framework integrations for jMolecules.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/TNG/ArchUnit.git
+  description: ArchUnit — architecture testing library for Java.
+
+# ─── Architecture References ──────────────────────────────────────────────────
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/odrotbohm/spring-restbucks.git
+  description: Spring Restbucks — reference application for hypermedia REST with Spring.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/odrotbohm/arch-evident-spring.git
+  description: arch-evident-spring — architecture-evident Spring application reference.
+
+# ─── Build Tooling ────────────────────────────────────────────────────────────
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/apple/rules_pkl.git
+  description: Apple's Bazel rules for the Pkl configuration language.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/bazelbuild/rules_jvm_external.git
+  description: Bazel rules for fetching and working with JVM dependencies.

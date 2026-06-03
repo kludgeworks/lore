@@ -4,8 +4,14 @@ server:
     threads:
       max: 50
       min-spare: 5
-    max-connections: 100
+    # max-connections removed to use Tomcat default (8192)
     connection-timeout: 20s
+
+spring:
+  mvc:
+    async:
+      # Force SSE connections to timeout after 5 minutes to reap abandoned connections
+      request-timeout: 300000
 
 # Actuator endpoints for health checks and monitoring
 management:
@@ -24,7 +30,7 @@ guide:
     allowed-origins: ${GUIDE_CORS_ALLOWED_ORIGINS:}
 
   # If true, the Guide chatbot will load content from URLs and directories on startup
-  reload-content-on-startup: false
+  reload-content-on-startup: true
 
   # Projects root: absolute path, or relative to process working directory (e.g. ./embabel-projects)
   projects-path: ./embabel-projects
@@ -75,6 +81,16 @@ guide:
       - https://medium.com/embabel/from-docs-to-dialog-2b613901db60
       - https://medium.com/embabel/the-very-slowly-ticking-time-bomb-in-your-graph-persistence-stack-6da1a8da9515
       - https://medium.com/embabel/the-voice-the-word-and-the-wheel-d6e2ef2ab26e
+      # @odrotbohm — architecture & Spring
+      - https://odrotbohm.de/2025/12/rethinking-spring-application-integration-testing/
+      - https://odrotbohm.de/2025/11/jmolecules-2.0-stereotypical/
+      - https://odrotbohm.de/2024/09/the-instability-abstractness-relationsship-an-alternative-view/
+      - https://odrotbohm.de/2023/07/sliced-onion-architecture/
+      - https://odrotbohm.github.io/2016/10/evolving-distributed-systems/
+      - https://odrotbohm.github.io/2016/04/benefits-of-hypermedia/
+      - https://odrotbohm.github.io/2013/01/whoops-where-did-my-architecture-go/
+      # @martinfowler
+      - https://martinfowler.com/bliki/BoundedContext.html
 
   # Route specific URL patterns through alternate fetchers.
   # Medium is handled programmatically by MediumArchiveContentFetcher
@@ -83,8 +99,22 @@ guide:
   fetch-routes: []
 
   # Local directories to ingest (full tree). Paths are absolute or relative to working directory.
-  # Example: clone repos then list them here for full-repo RAG.
-  directories: []
+  # Cloned repositories land in .workspace/repos automatically — add personal checkouts here sparingly.
+  directories:
+    - .workspace/repos
+
+  # Remote Git repositories to shallow-clone and ingest on startup.
+  # Use `tag:` to pin a library to a specific release; omit for example apps (tracks main).
+  repositories:
+    # Libraries — pin to a specific release tag once stabilised
+    - url: https://github.com/spring-projects/spring-ai.git
+      # tag: 1.0.0
+    # Example applications — main is sufficient
+    - url: https://github.com/embabel/shepherd.git
+    - url: https://github.com/embabel/ragbot.git
+    - url: https://github.com/embabel/embabel-agent-examples.git
+    - url: https://github.com/embabel/impromptu.git
+    - url: https://github.com/embabel/tripper.git
 
   tool-groups:
 
@@ -114,7 +144,7 @@ spring:
     ansi:
       enabled: always
   profiles:
-    active: neo4j  # Change to 'neo4j', 'falkordb', 'memgraph', or 'default' for TestContainers
+    active: neo4j  # Hardcoded to neo4j
     config:
       activate:
         on-profile: neo4j
@@ -132,7 +162,7 @@ embabel:
 
   models:
     # Local ONNX embedding model (no API key needed)
-    default-embedding-model: all-MiniLM-L6-v2
+    default-embedding-model: nomic-embed-text-v1.5
 
     # Fake LLM — real models are resolved per-user via BYOK (UserLlmResolver)
     default-llm: setup-required
@@ -190,36 +220,4 @@ database:
       protocol: ${NEO4J_PROTOCOL:bolt}
       databaseName: neo4j
 
----
-# FalkorDB profile — activate with: spring.profiles.active=falkordb
-spring:
-  config:
-    activate:
-      on-profile: falkordb
 
-database:
-  dataSources:
-    neo:
-      type: FALKORDB
-      host: ${FALKORDB_HOST:localhost}
-      port: ${FALKORDB_PORT:6379}
-      databaseName: embabel
-
----
-# Memgraph profile — activate with: spring.profiles.active=memgraph
-# Memgraph speaks Bolt; the docker-compose service maps host port 7688 to container 7687
-# to avoid clashing with neo4j.
-spring:
-  config:
-    activate:
-      on-profile: memgraph
-
-database:
-  dataSources:
-    neo:
-      type: MEMGRAPH
-      host: ${MEMGRAPH_HOST:localhost}
-      port: ${MEMGRAPH_BOLT_PORT:7688}
-      userName: ""
-      password: ""
-      databaseName: memgraph

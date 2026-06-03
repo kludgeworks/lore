@@ -10,6 +10,7 @@ import com.embabel.agent.rag.store.ChunkingContentElementRepository;
 import com.embabel.agent.rag.store.ContentElementRepositoryInfo;
 import com.embabel.agent.tools.file.FileTools;
 import com.embabel.guide.GuideProperties;
+import com.embabel.guide.RepositoryConfig;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Exposes references and RAG configuration.
@@ -38,6 +42,7 @@ public class DataManager {
     private final ChunkingContentElementRepository store;
 
     private final HierarchicalContentReader hierarchicalContentReader;
+    private final RepositoryIngestionService repositoryIngestionService;
 
     // Refresh only snapshots
     private final ContentRefreshPolicy contentRefreshPolicy = UrlSpecificContentRefreshPolicy.containingAny(
@@ -47,11 +52,13 @@ public class DataManager {
     public DataManager(
             ChunkingContentElementRepository store,
             GuideProperties guideProperties,
-            HierarchicalContentReader hierarchicalContentReader
+            HierarchicalContentReader hierarchicalContentReader,
+            RepositoryIngestionService repositoryIngestionService
     ) {
         this.store = store;
         this.guideProperties = guideProperties;
         this.hierarchicalContentReader = hierarchicalContentReader;
+        this.repositoryIngestionService = repositoryIngestionService;
         this.references = LlmReferenceProviders.fromYmlFile(guideProperties.getReferencesFile());
         store.provision();
         // Ingestion on startup is now handled by IngestionRunner (ApplicationRunner)
@@ -100,21 +107,38 @@ public class DataManager {
         var ft = FileTools.readOnly(dir);
         var directoryParsingResult = hierarchicalContentReader
                 .parseFromDirectory(ft, new DirectoryParsingConfig());
-        for (var root : directoryParsingResult.getContentRoots()) {
-            String docTitle = "unknown";
-            try {
-                var doc = (NavigableDocument) root;
-                docTitle = doc.getTitle();
-                logger.info("Parsed root: {} with {} descendants", docTitle,
-                        Iterables.size(doc.descendants()));
-                store.writeAndChunkDocument(doc);
-            } catch (Throwable t) {
-                logger.error("Failed to write document '{}' from directory {}: {}",
-                        docTitle, dir, t.getMessage(), t);
-                failedDocuments.add(IngestionFailure.fromException(
-                        dir + " -> " + docTitle, t));
+
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<?>> futures = new ArrayList<>();
+            for (var root : directoryParsingResult.getContentRoots()) {
+                futures.add(executor.submit(() -> {
+                    String docTitle = "unknown";
+                    try {
+                        var doc = (NavigableDocument) root;
+                        docTitle = doc.getTitle();
+                        logger.info("Parsed root: {} with {} descendants", docTitle,
+                                Iterables.size(doc.descendants()));
+                        store.writeAndChunkDocument(doc);
+                    } catch (Throwable t) {
+                        logger.error("Failed to write document '{}' from directory {}: {}",
+                                docTitle, dir, t.getMessage(), t);
+                        synchronized (failedDocuments) {
+                            failedDocuments.add(IngestionFailure.fromException(
+                                    dir + " -> " + docTitle, t));
+                        }
+                    }
+                }));
+            }
+            // Wait for all documents in this directory to finish chunking and storing
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    logger.error("Virtual thread execution failed", e);
+                }
             }
         }
+
         return directoryParsingResult;
     }
 
@@ -149,6 +173,12 @@ public class DataManager {
         var ingestedDirs = new ArrayList<String>();
         var failedDirs = new ArrayList<IngestionFailure>();
         var failedDocuments = new ArrayList<IngestionFailure>();
+
+        List<RepositoryConfig> repos = guideProperties.getRepositories();
+        if (repos != null && !repos.isEmpty()) {
+            logger.info("Cloning {} repositories...", repos.size());
+            repositoryIngestionService.cloneRepositories(repos);
+        }
 
         for (var url : guideProperties.getUrls()) {
             try {

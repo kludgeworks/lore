@@ -17,7 +17,7 @@
     <description>Embabel chatbot</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>26</java.version>
         <embabel-agent.version>0.4.0-SNAPSHOT</embabel-agent.version>
         <spring-ai.version>1.1.1</spring-ai.version>
         <kotlin.version>2.2.0</kotlin.version>
@@ -194,61 +194,57 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Testcontainers are now provided by drivine4j-spring-boot-starter via @EnableDrivineTestConfig -->
+        <!-- JSpecify for standard nullability annotations -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
+        <!-- JGit for shallow cloning repositories -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>7.0.0.202409031743-r</version>
+        </dependency>
+
+        <!-- Testcontainers are now provided by drivine4j-spring-boot-starter via @EnableDrivineTestConfig -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-docker-compose</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Run Gradle KSP to generate Drivine DSL code -->
+            <!-- Run native Maven KSP to generate Drivine DSL code -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <groupId>me.kpavlov.ksp.maven</groupId>
+                <artifactId>ksp-maven-plugin</artifactId>
+                <version>0.4.1</version>
                 <executions>
                     <execution>
-                        <id>gradle-ksp-codegen</id>
+                        <id>ksp</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>process</goal>
                         </goals>
-                        <configuration>
-                            <executable>${project.basedir}/codegen-gradle/gradlew</executable>
-                            <workingDirectory>${project.basedir}/codegen-gradle</workingDirectory>
-                            <arguments>
-                                <argument>kspKotlin</argument>
-                                <argument>--quiet</argument>
-                            </arguments>
-                        </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Include Gradle-generated sources in Maven build -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
-                    <execution>
-                        <id>add-ksp-generated-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.basedir}/codegen-gradle/build/generated/ksp/main/kotlin</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.drivine</groupId>
+                        <artifactId>drivine4j-codegen</artifactId>
+                        <version>0.0.38</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
@@ -266,7 +262,7 @@
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
                                 <sourceDir>${project.basedir}/src/main/java</sourceDir>
-                                <sourceDir>${project.basedir}/codegen-gradle/build/generated/ksp/main/kotlin</sourceDir>
+                                <sourceDir>${project.build.directory}/generated-sources/ksp</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
@@ -285,6 +281,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <jvmTarget>24</jvmTarget>
                     <args>
                         <arg>-Xjsr305=strict</arg>
                         <arg>-Xskip-metadata-version-check</arg>
@@ -305,6 +302,26 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>26</release>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                        <arg>-XDcompilePolicy=simple</arg>
+                        <arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=com.embabel</arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>2.31.0</version>
+                        </path>
+                        <path>
+                            <groupId>com.uber.nullaway</groupId>
+                            <artifactId>nullaway</artifactId>
+                            <version>0.11.1</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-compile</id>
@@ -351,6 +368,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Spotless for google-java-format -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <googleJavaFormat/>
+                    </java>
+                </configuration>
             </plugin>
         </plugins>
     </build>

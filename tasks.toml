@@ -1,0 +1,15 @@
+[tasks.verify]
+description = "Run Maven verify (tests, linters)"
+run = "mvn verify"
+
+[tasks.run]
+description = "Run Spring Boot application"
+run = "mvn spring-boot:run"
+
+[tasks.fmt]
+description = "Run spotless formatter"
+run = "mvn spotless:apply"
+
+[tasks.license]
+description = "Add license headers"
+run = "addlicense -c 'Embabel Pty Ltd.' -l apache ."

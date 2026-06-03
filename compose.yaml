@@ -1,7 +1,5 @@
 services:
   neo4j:
-    profiles:
-      - neo4j
     image: neo4j:${NEO4J_VERSION:-2025.10.1-community-bullseye}
     container_name: embabel-neo4j
     ports:
@@ -13,7 +11,7 @@ services:
       - NEO4J_PLUGINS=["apoc"]
       - NEO4J_dbms_security_procedures_unrestricted=apoc.*
       - NEO4J_dbms_memory_heap_initial__size=512M
-      - NEO4J_dbms_memory_heap_max__size=2G
+      - NEO4J_dbms_memory_heap_max__size=8G
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
@@ -84,45 +82,7 @@ services:
       - embabel-network
     restart: unless-stopped
 
-  memgraph:
-    profiles:
-      - memgraph
-    image: memgraph/memgraph-mage:latest
-    container_name: embabel-memgraph
-    ports:
-      - "${MEMGRAPH_BOLT_PORT:-7688}:7687"
-    command: ["--also-log-to-stderr", "--log-level=WARNING"]
-    volumes:
-      - memgraph_data:/var/lib/memgraph
-      - memgraph_log:/var/log/memgraph
-    networks:
-      - embabel-network
 
-  falkordb:
-    profiles:
-      - falkordb
-    image: falkordb/falkordb:latest
-    container_name: embabel-falkordb
-    ports:
-      - "${FALKORDB_PORT:-6379}:6379"
-    volumes:
-      - falkordb_data:/data
-    networks:
-      - embabel-network
-
-  falkordb-browser:
-    profiles:
-      - falkordb
-    image: falkordb/falkordb-browser:latest
-    container_name: embabel-falkordb-browser
-    ports:
-      - "${FALKORDB_BROWSER_PORT:-3001}:3000"
-    environment:
-      - FALKORDB_URL=redis://falkordb:6379
-    depends_on:
-      - falkordb
-    networks:
-      - embabel-network
 
 volumes:
   neo4j_data:
@@ -133,12 +93,7 @@ volumes:
     driver: local
   neo4j_plugins:
     driver: local
-  falkordb_data:
-    driver: local
-  memgraph_data:
-    driver: local
-  memgraph_log:
-    driver: local
+
 
 networks:
   embabel-network:

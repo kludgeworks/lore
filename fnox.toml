@@ -1,0 +1,6 @@
+[providers.onepass]
+type = "1password"
+vault = "Private" # Adjust this to a shared vault if needed for a team
+
+[secrets]
+ANTHROPIC_API_KEY = { provider = "onepass", key = "Anthropic", field = "credential" }

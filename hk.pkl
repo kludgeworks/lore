@@ -1,0 +1,77 @@
+amends "package://github.com/jdx/hk/releases/download/v1.45.0/hk@1.45.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.45.0/hk@1.45.0#/Builtins.pkl"
+
+local linters = new Mapping<String, Step> {
+  ["shellcheck"] = Builtins.shellcheck
+  ["shfmt"] = (Builtins.shfmt) {
+    batch = true
+    check = "shfmt -i 2 -d {{files}}"
+    fix = "shfmt -i 2 -w {{files}}"
+  }
+  ["vale"] = (Builtins.vale) {
+    glob = List("README.md", "linter/**/*.md")
+    batch = true
+    check = "vale {{files}}"
+  }
+  ["taplo_format"] = Builtins.taplo_format
+  ["check_merge_conflict"] = Builtins.check_merge_conflict
+  ["newlines"] = Builtins.newlines
+  ["trailing_whitespace"] = Builtins.trailing_whitespace
+  ["mixed_line_ending"] = Builtins.mixed_line_ending
+  ["check_case_conflict"] = Builtins.check_case_conflict
+  ["check_symlinks"] = Builtins.check_symlinks
+  ["check_executables_have_shebangs"] = Builtins.check_executables_have_shebangs
+  ["check_byte_order_marker"] = Builtins.check_byte_order_marker
+  ["detect_private_key"] = Builtins.detect_private_key
+  ["google_java_format"] = new Step {
+    glob = List("src/**/*.java")
+    batch = true
+    check = "google-java-format --dry-run --set-exit-if-changed {{files}}"
+    fix = "google-java-format --replace {{files}}"
+  }
+  ["addlicense"] = new Step {
+    required = List("LICENSE_HOLDER", "LICENSE_TYPE")
+    glob = List("**/*")
+    exclude = List("pnpm-lock.yaml")
+    batch = true
+    check = "addlicense -s=only -c \"$LICENSE_HOLDER\" -l \"$LICENSE_TYPE\" -check {{files}}"
+    fix = "addlicense -s=only -c \"$LICENSE_HOLDER\" -l \"$LICENSE_TYPE\" {{files}}"
+  }
+  ["detekt"] = new Step {
+    env {
+      ["JAVA_TOOL_OPTIONS"] = "--sun-misc-unsafe-memory-access=allow"
+    }
+    glob = List("src/**/*.kt")
+    batch = true
+    check =
+      "detekt-cli --build-upon-default-config --config detekt.yml --input {{ files_list | join(sep=',') }} --language-version 2.1 --jvm-target 21 --base-path ."
+    fix =
+      "detekt-cli --build-upon-default-config --config detekt.yml --input {{ files_list | join(sep=',') }} --language-version 2.1 --jvm-target 21 --base-path . --auto-correct"
+  }
+}
+
+hooks {
+  ["pre-commit"] {
+    steps {
+      ...linters
+    }
+  }
+  ["commit-msg"] {
+    steps {
+      ["check_conventional_commit"] = (Builtins.check_conventional_commit) {
+        check =
+          "hk util check-conventional-commit --allowed-types feat,fix,docs,refactor,chore {{commit_msg_file}}"
+      }
+    }
+  }
+  ["fix"] {
+    steps {
+      ...linters
+    }
+  }
+  ["check"] {
+    steps {
+      ...linters
+    }
+  }
+}

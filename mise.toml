@@ -1,0 +1,10 @@
+[tools]
+java = "temurin-26"
+maven = "3.9.7"
+node = "20"
+"github:google/addlicense" = "latest"
+"github:google/google-java-format" = "latest"
+fnox = "latest"
+
+[shell_alias]
+mvnw = "mvn"

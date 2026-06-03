@@ -1,0 +1,39 @@
+# Copyright 2026 The Project Contributors
+# SPDX-License-Identifier: MIT
+
+config:
+  validation: true
+  warningsAsErrors: true
+  checkExhaustiveness: false
+
+build:
+  maxIssues: 0
+
+style:
+  MaxLineLength:
+    maxLineLength: 130
+  UnusedParameter:
+    active: true
+    allowedNames: '(_.*)'
+  ReturnCount:
+    active: true
+    max: 4
+    excludeGuardClauses: true
+    excludeReturnFromLambda: true
+
+naming:
+  FunctionParameterNaming:
+    active: true
+    parameterPattern: '[a-z_][A-Za-z0-9]*'
+
+complexity:
+  TooManyFunctions:
+    active: true
+    ignoreOverridden: true
+  LongParameterList:
+    active: true
+    constructorThreshold: 10
+
+performance:
+  SpreadOperator:
+    active: false
