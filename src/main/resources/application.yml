@@ -180,6 +180,9 @@ database:
       host: ${NEO4J_HOST:localhost}
       port: 7687
       protocol: ${NEO4J_PROTOCOL:bolt}
-      databaseName: neo4j
+      # Each profile overrides databaseName to keep its vector store isolated.
+      # application-embabel.yml → codex_embabel
+      # application-ddd.yml    → codex_ddd
+      databaseName: codex
 
 
