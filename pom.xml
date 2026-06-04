@@ -21,6 +21,8 @@
         <embabel-agent.version>0.4.0-SNAPSHOT</embabel-agent.version>
         <spring-ai.version>1.1.1</spring-ai.version>
         <kotlin.version>2.2.0</kotlin.version>
+        <!-- Override Spring Boot's managed JaCoCo (0.8.12 cannot instrument JDK 26 bytecode) -->
+        <jacoco.version>0.8.14</jacoco.version>
     </properties>
 
     <dependencies>
@@ -247,6 +249,33 @@
                 </dependencies>
             </plugin>
 
+            <!--
+              The build's sourceDirectory is src/main/kotlin, so javac (maven-compiler-plugin)
+              would not see the Java sources in src/main/java — the Kotlin compiler reads them for
+              symbol resolution but does not emit .class files for them. Register src/main/java as a
+              compile source root so javac compiles it to target/classes; otherwise downstream Kotlin
+              (incl. test) compilation cannot resolve the Java types (e.g. DataManager, IngestionResult).
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>add-java-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -305,20 +334,27 @@
                 <configuration>
                     <release>26</release>
                     <compilerArgs>
-                        <arg>--enable-preview</arg>
+                        <!-- Error Prone on JDK 16+ (see https://errorprone.info/docs/installation) -->
                         <arg>-XDcompilePolicy=simple</arg>
+                        <arg>--should-stop=ifError=FLOW</arg>
                         <arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=com.embabel</arg>
+                        <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
+                        <!--
+                          error_prone_core 2.48.0 supports JDK 26 (2.31.0 crashed on it). Java sources
+                          in src/main/java are compiled by javac via build-helper-maven-plugin above,
+                          so NullAway now actually runs on the com.embabel.* Java code.
+                        -->
                         <path>
                             <groupId>com.google.errorprone</groupId>
                             <artifactId>error_prone_core</artifactId>
-                            <version>2.31.0</version>
+                            <version>2.48.0</version>
                         </path>
                         <path>
                             <groupId>com.uber.nullaway</groupId>
                             <artifactId>nullaway</artifactId>
-                            <version>0.11.1</version>
+                            <version>0.13.1</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -352,7 +388,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>

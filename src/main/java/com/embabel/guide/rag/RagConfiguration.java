@@ -96,7 +96,11 @@ class RagConfiguration {
         var chunkerConfig = guideProperties.getChunkerConfig() != null
                 ? guideProperties.getChunkerConfig()
                 : new ContentChunker.Config();
-        var databaseType = dataSourceMap.getDataSources().get("neo").getType();
+        var neoDataSource = dataSourceMap.getDataSources().get("neo");
+        if (neoDataSource == null) {
+            throw new IllegalStateException("No 'neo' data source configured in database.dataSources");
+        }
+        var databaseType = neoDataSource.getType();
         var dialect = RagDialect.Companion.forDatabaseType(databaseType);
         return new DrivineStore(
                 persistenceManager,

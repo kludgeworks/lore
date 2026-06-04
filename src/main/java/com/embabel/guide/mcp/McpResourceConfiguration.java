@@ -3,6 +3,7 @@ package com.embabel.guide.mcp;
 import com.embabel.agent.mcpserver.sync.McpResourcePublisher;
 import com.embabel.agent.mcpserver.sync.SyncResourceSpecificationFactory;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -54,7 +55,7 @@ Notes:
             }
 
             @Override
-            public String infoString(Boolean verbose, int indent) {
+            public String infoString(@Nullable Boolean verbose, int indent) {
                 return "Embabel Guide MCP resources";
             }
         };
