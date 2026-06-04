@@ -10,14 +10,14 @@
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJIDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white)
 
-# Embabel Guide : Chat and MCP Server
+# Lore : Chat and MCP Server
 
 <img src="https://github.com/embabel/embabel-agent/blob/main/embabel-agent-api/images/315px-Meister_der_Weltenchronik_001.jpg?raw=true" width="180">
 
-Guide exposes resources relating to the Embabel Agent Framework, such
-as documentation, relevant blogs and other content, and up-to-the-minute API information.
-It ships several curated knowledge bases selected by profile — the Embabel Agent Framework and a
-Domain-Driven Design / Spring Modulith reference (see [Knowledge base profiles](#knowledge-base-profiles)).
+Lore exposes curated knowledge bases as documentation, relevant blogs and other content, and
+up-to-the-minute API information. It ships several knowledge bases selected by profile — the Embabel
+Agent Framework and a Domain-Driven Design / Spring Modulith reference (see
+[Knowledge base profiles](#knowledge-base-profiles)).
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=hY6ZFMIJdd4" target="_blank">
@@ -72,8 +72,8 @@ branding (`guide.domain`), so the chatbot introduces itself appropriately for th
 
 | Profile   | `GUIDE_PROFILE` | Neo4j DB        | Content                                                  | Config files |
 |-----------|-----------------|-----------------|----------------------------------------------------------|--------------|
-| Embabel   | `embabel`       | `codex_embabel` | The Embabel Agent Framework — docs, blogs, examples      | `application-embabel.yml`, `references-embabel.yml` |
-| DDD       | `ddd`           | `codex_ddd`     | Domain-Driven Design, Sliced Onion & Spring Modulith     | `application-ddd.yml`, `references-ddd.yml` |
+| Embabel   | `embabel`       | `lore_embabel` | The Embabel Agent Framework — docs, blogs, examples      | `application-embabel.yml`, `references-embabel.yml` |
+| DDD       | `ddd`           | `lore_ddd`     | Domain-Driven Design, Sliced Onion & Spring Modulith     | `application-ddd.yml`, `references-ddd.yml` |
 
 The `embabel` profile **extends** `ddd` (`guide.extends: ddd`, resolved by `GuideComposition`): it
 inherits the DDD reference tools and domain branding — so the Embabel assistant presents itself as
@@ -127,7 +127,7 @@ The ingest scripts are the simplest way to run locally — each one starts Neo4j
 clears it, ingests the selected profile's content on startup, and runs the app in the foreground:
 
 ```bash
-GUIDE_PROFILE=ddd ./scripts/fresh-ingest.sh      # wipe codex_ddd, then ingest + run
+GUIDE_PROFILE=ddd ./scripts/fresh-ingest.sh      # wipe lore_ddd, then ingest + run
 GUIDE_PROFILE=ddd ./scripts/append-ingest.sh     # keep existing data, ingest new + run
 ```
 
@@ -198,7 +198,7 @@ npx @modelcontextprotocol/inspector
 
 Within the inspector UI, connect to `http://localhost:1337/sse`.
 
-## Consuming Embabel MCP Server Tools
+## Consuming the Lore MCP Server
 
 - [Claude Desktop](#claude-desktop)
 - [Claude Code](#claude-code)
@@ -225,7 +225,7 @@ Add this stanza to `claude_desktop_config.json`:
 {
   "mcpServers": {
 
-    "embabel-dev": {
+    "lore-dev": {
       "command": "npx",
       "args": [
         "-y",
@@ -250,22 +250,22 @@ See [claude_project.md](docs/claude_project.md) (Embabel) or
 
 ### Claude Code
 
-If you're using Claude Code, adding the Embabel MCP server will
+If you're using Claude Code, adding the Lore MCP server will
 powerfully augment its capabilities for working on Embabel applications
 and helping you learn Embabel.
 
 ```bash
-claude mcp add embabel --transport sse http://localhost:1337/sse
+claude mcp add lore --transport sse http://localhost:1337/sse
 ```
 
-Within the Claude Code shell, type `/mcp` to test the connection. Choose the number of the `embabel` server to check its
+Within the Claude Code shell, type `/mcp` to test the connection. Choose the number of the `lore` server to check its
 status.
 
 Start via `claude --debug` to see more logging.
 
 See [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp) for further information.
 
-#### Auto-Approving Embabel MCP Tools
+#### Auto-Approving Lore MCP Tools
 
 By default, Claude Code asks for confirmation before running MCP tools. When you accept a tool with "Yes, don't ask
 again", Claude Code saves that permission to your local `.claude/settings.local.json` file (which is auto-ignored by
@@ -275,7 +275,7 @@ git).
 in your settings.
 
 **Tool naming:** By default, `guide.toolPrefix` is empty, so MCP tools are exposed with their original names (e.g.,
-`mcp__embabel__docs_vectorSearch`). You can set a custom prefix in your application configuration to namespace your
+`mcp__lore__docs_vectorSearch`). You can set a custom prefix in your application configuration to namespace your
 tools.
 
 See [Claude Code Permission Modes](https://code.claude.com/docs/en/iam#permission-modes) for detailed documentation on
@@ -286,7 +286,7 @@ how permissions work.
 Create or update `.codex/config.toml` and add the following MCP server entry:
 
 ```toml
-[mcp_servers.embabel_guide]
+[mcp_servers.lore]
 command = "npx"
 args = ["-y", "mcp-remote", "http://localhost:1337/sse", "--transport", "sse-only"]
 startup_timeout_sec = 60
@@ -306,7 +306,7 @@ Example (recommended: use `mcp-remote` as a stdio bridge for SSE):
 ```json
 {
   "mcpServers": {
-    "embabel-dev": {
+    "lore-dev": {
       "command": "npx",
       "args": [
         "-y",
@@ -338,12 +338,12 @@ You should then see the MCP server listed with tools enabled:
 - Open the MCP store via the "..." dropdown at the top of the editor's agent panel.
 - Click on "Manage MCP Servers"
 - Click on "View raw config"
-- Modify the mcp_config.json with Embabel MCP server configuration.
+- Modify the mcp_config.json with Lore MCP server configuration.
 
 ```json
 {
   "mcpServers": {
-    "embabel-dev": {
+    "lore-dev": {
       "command": "npx",
       "args": [
         "-y",
@@ -364,12 +364,12 @@ https://antigravity.google/docs/mcp#connecting-custom-mcp-servers
 
 #### Configuration
 
-- Modify the $HOME/.copilot/mcp-config.json with Embabel MCP server configuration
+- Modify the $HOME/.copilot/mcp-config.json with Lore MCP server configuration
 
 ```json
 {
   "mcpServers": {
-    "embabel-dev": {
+    "lore-dev": {
       "type": "sse",
       "url": "http://localhost:1337/sse",
       "tools": [

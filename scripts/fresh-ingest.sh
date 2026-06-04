@@ -36,7 +36,7 @@ echo "Waiting for Neo4j on port $NEO4J_BOLT_PORT..."
 max_wait=60
 elapsed=0
 while [ $elapsed -lt $max_wait ]; do
-  if docker exec embabel-neo4j cypher-shell -u "${NEO4J_USERNAME:-neo4j}" -p "${NEO4J_PASSWORD:-brahmsian}" "RETURN 1" >/dev/null 2>&1; then
+  if docker exec lore-neo4j cypher-shell -u "${NEO4J_USERNAME:-neo4j}" -p "${NEO4J_PASSWORD:-brahmsian}" "RETURN 1" >/dev/null 2>&1; then
     echo "Neo4j is ready."
     break
   fi
@@ -50,7 +50,7 @@ if [ $elapsed -ge $max_wait ]; then
 fi
 
 echo "Clearing RAG content in Neo4j (ContentElement nodes)..."
-docker exec embabel-neo4j cypher-shell -u "${NEO4J_USERNAME:-neo4j}" -p "${NEO4J_PASSWORD:-brahmsian}" "MATCH (c:ContentElement) DETACH DELETE c" 2>/dev/null || true
+docker exec lore-neo4j cypher-shell -u "${NEO4J_USERNAME:-neo4j}" -p "${NEO4J_PASSWORD:-brahmsian}" "MATCH (c:ContentElement) DETACH DELETE c" 2>/dev/null || true
 echo "RAG content cleared."
 
 GUIDE_PROFILE="${GUIDE_PROFILE:-user}"

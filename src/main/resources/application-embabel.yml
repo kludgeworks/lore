@@ -1,14 +1,14 @@
 database:
   dataSources:
     neo:
-      databaseName: codex_embabel
+      databaseName: lore_embabel
 
 guide:
   references-file: references-embabel.yml
 
   # Embabel builds on the DDD foundation: inherit the ddd profile's reference tools and
   # domain branding (references + pronunciations). The ingested corpus and Neo4j database
-  # (codex_embabel) remain this profile's own — see GuideComposition.
+  # (lore_embabel) remain this profile's own — see GuideComposition.
   extends: ddd
 
   # Branding/voice for this profile. Consumed by the system prompt

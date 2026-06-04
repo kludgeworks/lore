@@ -12,6 +12,15 @@ spring:
     async:
       # Force SSE connections to timeout after 5 minutes to reap abandoned connections
       request-timeout: 300000
+  # Force web application type (needed because Spring Shell is present)
+  main:
+    web-application-type: servlet
+  output:
+    ansi:
+      enabled: always
+  profiles:
+    # Default active profile when SPRING_PROFILES_ACTIVE is not set
+    active: neo4j
 
 # Actuator endpoints for health checks and monitoring
 management:
@@ -102,22 +111,6 @@ guide:
       redirect-uri: ${GITHUB_REDIRECT_URI:http://localhost:3000/auth/callback/github}
 
 
-# Spring configuration
-# Force web application type (needed because Spring Shell is present)
-spring:
-
-  main:
-    web-application-type: servlet
-  output:
-    ansi:
-      enabled: always
-  profiles:
-    active: neo4j  # Hardcoded to neo4j
-    config:
-      activate:
-        on-profile: neo4j
-
-
 # RAG Adapter Configuration (use "guide" to enable real Guide chatbot, "fake" for testing)
 rag:
   adapter:
@@ -193,8 +186,8 @@ database:
       port: 7687
       protocol: ${NEO4J_PROTOCOL:bolt}
       # Each profile overrides databaseName to keep its vector store isolated.
-      # application-embabel.yml → codex_embabel
-      # application-ddd.yml    → codex_ddd
-      databaseName: codex
+      # application-embabel.yml → lore_embabel
+      # application-ddd.yml    → lore_ddd
+      databaseName: lore
 
 
