@@ -51,6 +51,10 @@
   description: ArchUnit — architecture testing library for Java.
 
 - fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/ZenWave360/spring-modulith-events-spring-cloud-stream.git
+  description: Spring Modulith event externalizer over Spring Cloud Stream (Kafka/Rabbit, JSON/Avro).
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
   url: https://github.com/apple/rules_pkl.git
   description: Apple's Bazel rules for the Pkl configuration language.
 

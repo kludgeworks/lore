@@ -6,6 +6,7 @@ import com.embabel.agent.api.annotation.Agent
 import com.embabel.agent.api.annotation.Condition
 import com.embabel.agent.api.common.OperationContext
 import com.embabel.common.textio.template.TemplateRenderer
+import com.embabel.guide.GuideProperties
 import com.embabel.hub.integrations.LlmRole
 import com.embabel.hub.integrations.UserLlmResolver
 
@@ -21,6 +22,7 @@ import com.embabel.hub.integrations.UserLlmResolver
 class NarratorAgent(
     private val templateRenderer: TemplateRenderer,
     private val userLlmResolver: UserLlmResolver,
+    private val guideProperties: GuideProperties,
 ) {
 
     companion object {
@@ -95,6 +97,7 @@ class NarratorAgent(
         val model = mutableMapOf<String, Any>(
             "content" to cleaned,
             "wordCount" to wordCount,
+            "domain" to guideProperties.domain,
             "targetWords" to when {
                 wordCount <= 350 -> wordCount
                 wordCount <= 700 -> 180

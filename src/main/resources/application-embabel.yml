@@ -5,6 +5,24 @@ database:
 
 guide:
   references-file: references-embabel.yml
+
+  # Branding/voice for this profile. Consumed by the system prompt
+  # (guide_system.jinja / elements/references.jinja) via the template model.
+  domain:
+    name: Embabel
+    description: a powerful agent framework for the JVM
+    references:
+      - "embabel-agent-examples: Excellent source of API examples"
+      - "Embabel documentation: Use the appropriate tools to answer questions"
+      - "embabel-agent: The core agent framework, used to check API details"
+    tool-guidance: >-
+      Tools with docs_ in the name load content from Embabel documentation —
+      this should usually be your starting point. Tools with git_ in the name
+      load content from Embabel source including examples.
+    pronunciations:
+      - '"Embabel" → "embaybel", "Embabel''s" → "Embaybel''s"'
+      - '"GOAP" → "göpe"'
+
   content:
     supplementary:
       - https://raw.githubusercontent.com/liberation-data/drivine4j/refs/heads/main/README.md

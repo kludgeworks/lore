@@ -40,6 +40,18 @@ guide:
   # You can add your own persona files to that directory
   default-persona: adaptive
 
+  # Branding/voice injected into the system prompt. Each profile overrides this
+  # (application-embabel.yml, application-ddd.yml). Generic fallback when no
+  # profile-specific domain is set.
+  domain:
+    name: this knowledge base
+    description: the documentation and source it has been given
+    references: []
+    tool-guidance: >-
+      Tools with docs_ in the name load curated documentation and articles —
+      usually your starting point. Tools with git_ in the name load source from
+      reference repositories and example applications.
+
   # default-provider: OPENAI  # Auto-detected from env vars (OPENAI_API_KEY, ANTHROPIC_API_KEY, etc.)
 
   content-chunker:

@@ -268,6 +268,7 @@ class ChatActions(
         return mutableMapOf(
             "persona" to persona,
             "user" to userMap,
+            "domain" to guideProperties.domain,
         )
     }
 

@@ -35,6 +35,33 @@ This is exposed in two ways:
 > **Note:** The chat server and Spring Shell conflict with each other. By default, the chat server is enabled. To use
 > Spring Shell instead, uncomment the relevant lines in `pom.xml`.
 
+## Knowledge base profiles
+
+Guide ships more than one curated knowledge base, selected by Spring profile via the
+`GUIDE_PROFILE` environment variable. Each profile is fully isolated — it has its own
+Neo4j database, its own ingested content, its own reference tools, and its own system-prompt
+branding (`guide.domain`), so the chatbot introduces itself appropriately for the active domain.
+
+| Profile   | `GUIDE_PROFILE` | Neo4j DB        | Content                                                  | Config files |
+|-----------|-----------------|-----------------|----------------------------------------------------------|--------------|
+| Embabel   | `embabel`       | `codex_embabel` | The Embabel Agent Framework — docs, blogs, examples      | `application-embabel.yml`, `references-embabel.yml` |
+| DDD       | `ddd`           | `codex_ddd`     | Domain-Driven Design, Sliced Onion & Spring Modulith     | `application-ddd.yml`, `references-ddd.yml` |
+
+Branding for each profile lives in its `guide.domain` block (name, description, key references,
+tool guidance, and TTS pronunciations); the base fallback is in `application.yml`. To add curated
+resources to a profile, edit `guide.content.supplementary` (articles/docs), `guide.repositories`
+(repos to clone + ingest), or the profile's `references-*.yml` (lazy code-browsing tools).
+
+Re-ingest a profile after editing its resources:
+
+```bash
+GUIDE_PROFILE=ddd ./scripts/fresh-ingest.sh    # or append-ingest.sh to add without wiping
+```
+
+When creating a Claude Project / MCP project for a profile, point it at the matching briefing:
+[claude_project.md](docs/claude_project.md) (Embabel) or
+[claude_project_ddd.md](docs/claude_project_ddd.md) (DDD).
+
 ## Loading data
 
 ```bash
@@ -158,7 +185,9 @@ documentation.
 
 You should create a [Project](https://www.anthropic.com/news/projects) to ensure that Claude knows its purpose and how
 to use tools.
-See [claude_project.md](docs/claude_project.md) for suggested content.
+See [claude_project.md](docs/claude_project.md) (Embabel) or
+[claude_project_ddd.md](docs/claude_project_ddd.md) (DDD) for suggested content, matching the
+`GUIDE_PROFILE` you are running.
 
 ### Claude Code
 

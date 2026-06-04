@@ -35,6 +35,30 @@ data class ContentConfig(
 }
 
 /**
+ * Per-profile branding/voice for the system prompt.
+ *
+ * Injected into the prompt template model (see ChatActions.buildTemplateModel) so that
+ * guide_system.jinja and its includes describe the active knowledge base (Embabel, DDD, ...)
+ * instead of hard-coding a single domain.
+ *
+ * @param name          short name of the domain, e.g. "Embabel" or "Domain-Driven Design & Spring Modulith"
+ * @param description    short descriptor, e.g. "a powerful agent framework for the JVM"
+ * @param references     bullet points describing the key references/tools available for this domain
+ * @param toolGuidance   optional guidance on how to use the docs_/git_ tools for this domain
+ * @param pronunciations optional TTS pronunciation rules for domain-specific terms,
+ *                       each entry a free-text rule such as `"Embabel" -> "embaybel"`
+ */
+data class DomainConfig(
+    @field:NotBlank(message = "domain.name must not be blank")
+    val name: String,
+    @field:NotBlank(message = "domain.description must not be blank")
+    val description: String,
+    val references: List<String> = emptyList(),
+    val toolGuidance: String? = null,
+    val pronunciations: List<String> = emptyList(),
+)
+
+/**
  * Configuration for a Git repository to ingest.
  */
 data class RepositoryConfig(
@@ -70,6 +94,7 @@ data class GuideProperties(
     @DefaultValue("references.yml")
     @field:NotBlank(message = "referencesFile must not be blank")
     val referencesFile: String,
+    @NestedConfigurationProperty val domain: DomainConfig,
     @NestedConfigurationProperty val content: ContentConfig,
     @DefaultValue("")
     val toolPrefix: String,

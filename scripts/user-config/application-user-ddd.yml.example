@@ -1,0 +1,34 @@
+# Example personal config for the DDD profile. Copy to application-user.yml
+# (gitignored) and customize, or set GUIDE_PROFILE=yourname in .env and name it
+# application-yourname.yml.
+#
+#   cp scripts/user-config/application-user-ddd.yml.example scripts/user-config/application-user.yml
+#
+# This layers personal DDD / Spring Modulith resources on top of the built-in
+# `ddd` profile (application-ddd.yml). Use the same schema as the profile config:
+# content.supplementary for article/doc URLs, repositories for repos to clone,
+# directories for local checkouts to ingest.
+
+guide:
+  # Set to true to ingest URLs/directories on startup and print a summary
+  reload-content-on-startup: true
+  projects-path: ./ddd-projects
+  default-persona: adaptive
+  chat-llm:
+    model: gpt-4.1-mini
+  content-chunker:
+    include-section-title-in-chunk: false
+    max-chunk-size: 4000
+    overlap-size: 200
+    embedding-batch-size: 50
+  content:
+    supplementary:
+      - https://docs.spring.io/spring-modulith/reference/
+      - https://martinfowler.com/bliki/DDD_Aggregate.html
+  repositories:
+    - url: https://github.com/ddd-by-examples/library.git
+    - url: https://github.com/xsreality/spring-modulith-with-ddd.git
+  # Ingest full local repos (paths relative to working dir or absolute)
+  directories:
+    - ./ddd-projects/library
+  tool-groups:
