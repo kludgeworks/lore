@@ -16,6 +16,8 @@
 
 Guide exposes resources relating to the Embabel Agent Framework, such
 as documentation, relevant blogs and other content, and up-to-the-minute API information.
+It ships several curated knowledge bases selected by profile — the Embabel Agent Framework and a
+Domain-Driven Design / Spring Modulith reference (see [Knowledge base profiles](#knowledge-base-profiles)).
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=hY6ZFMIJdd4" target="_blank">
@@ -47,6 +49,11 @@ branding (`guide.domain`), so the chatbot introduces itself appropriately for th
 | Embabel   | `embabel`       | `codex_embabel` | The Embabel Agent Framework — docs, blogs, examples      | `application-embabel.yml`, `references-embabel.yml` |
 | DDD       | `ddd`           | `codex_ddd`     | Domain-Driven Design, Sliced Onion & Spring Modulith     | `application-ddd.yml`, `references-ddd.yml` |
 
+The `embabel` profile **extends** `ddd` (`guide.extends: ddd`, resolved by `GuideComposition`): it
+inherits the DDD reference tools and domain branding — so the Embabel assistant presents itself as
+built on Spring/DDD — while keeping its own isolated database and ingested content. The `ddd` profile
+is standalone.
+
 Branding for each profile lives in its `guide.domain` block (name, description, key references,
 tool guidance, and TTS pronunciations); the base fallback is in `application.yml`. To add curated
 resources to a profile, edit `guide.content.supplementary` (articles/docs), `guide.repositories`
@@ -61,6 +68,56 @@ GUIDE_PROFILE=ddd ./scripts/fresh-ingest.sh    # or append-ingest.sh to add with
 When creating a Claude Project / MCP project for a profile, point it at the matching briefing:
 [claude_project.md](docs/claude_project.md) (Embabel) or
 [claude_project_ddd.md](docs/claude_project_ddd.md) (DDD).
+
+### Pinning referenced versions
+
+Referenced repositories can be pinned to a specific release so the knowledge base reflects a known
+version instead of whatever is currently on `main`:
+
+- **Ingested repos** (`guide.repositories`): add `tag: <git-tag>` (e.g. `spring-ai` → `v1.1.1`,
+  `arch-evident-spring` → `steps/7`). Without a `tag:`, the repo tracks its default branch.
+- **Code-browsing tools** (`references-*.yml`): use
+  `fqn: com.embabel.guide.references.PinnedGitHubRepository` with `ref: <tag/branch/commit>`
+  (e.g. ArchUnit `v1.4.2`, spring-modulith `2.0.6`, jMolecules `2.0.1`, embabel-agent `v0.4.0`).
+  Entries that keep the plain `com.embabel.coding.tools.git.GitHubRepository` fqn track the default branch.
+
+Libraries are pinned to their latest release; example/demo apps and repos that publish no releases
+intentionally track `main`. Bump a pin deliberately when upgrading.
+
+## Prerequisites
+
+- **JDK 26.** The build targets `--release 26` and runs Error Prone / NullAway during compilation.
+  The toolchain is pinned with [mise](https://mise.jdx.dev) (`mise.toml` → Temurin 26): run
+  `mise install`, or point `JAVA_HOME` at a JDK 26 yourself. The Maven wrapper (`./mvnw`) and the
+  committed `.mvn/jvm.config` (Error Prone `--add-exports`) mean no further build setup is needed.
+- **Docker** — for Neo4j, the default graph backend.
+- **An LLM provider key** — set one of `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`, or
+  `DEEPSEEK_API_KEY` (hub/web deployments instead let each user bring their own key via
+  **Settings → Integrations**).
+
+## Running the app
+
+The ingest scripts are the simplest way to run locally — each one starts Neo4j (Docker), optionally
+clears it, ingests the selected profile's content on startup, and runs the app in the foreground:
+
+```bash
+GUIDE_PROFILE=ddd ./scripts/fresh-ingest.sh      # wipe codex_ddd, then ingest + run
+GUIDE_PROFILE=ddd ./scripts/append-ingest.sh     # keep existing data, ingest new + run
+```
+
+Set `GUIDE_PROFILE` to `embabel` or `ddd` (or your own `application-<name>.yml`); it can also live in
+a local `.env`. The scripts export `SPRING_PROFILES_ACTIVE=local,<profile>` and run
+`./mvnw spring-boot:run`. The server starts on `http://localhost:1337` — chat WebSocket at `/ws`,
+MCP SSE at `/sse`, REST under `/api`. Watch for the `INGESTION COMPLETE` banner.
+
+To run **without** re-ingesting (serve the data already in Neo4j), start Neo4j and the app directly:
+
+```bash
+docker compose up neo4j -d
+SPRING_PROFILES_ACTIVE=local,ddd ./mvnw spring-boot:run
+```
+
+Or run the whole stack (Neo4j + the Java app) in Docker — see [Docker](#docker) below.
 
 ## Loading data
 
@@ -572,7 +629,7 @@ NEO4J_PASSWORD=mysecretpassword OPENAI_API_KEY=sk-... GUIDE_PORT=1338 docker com
 
 ### Prerequisites
 
-Tests require the following:
+Tests require the following (plus **JDK 26** — see [Prerequisites](#prerequisites)):
 
 1. **LLM API Key**: Set at least one provider key in your environment before running tests:
 
