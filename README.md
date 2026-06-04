@@ -37,6 +37,32 @@ This is exposed in two ways:
 > **Note:** The chat server and Spring Shell conflict with each other. By default, the chat server is enabled. To use
 > Spring Shell instead, uncomment the relevant lines in `pom.xml`.
 
+## Quickstart
+
+Requires **Docker** running, **JDK 26** (`mise install` — see [Prerequisites](#prerequisites)), and an
+**Anthropic API key**. The Spring Boot app starts Neo4j itself via `spring-boot-docker-compose` (the
+default `neo4j` service in `compose.yaml`), so there is no separate `docker compose` step.
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+
+# Auto-starts Neo4j, ingests the DDD knowledge base on startup, then serves on :1337.
+SPRING_PROFILES_ACTIVE=local,ddd ./mvnw spring-boot:run
+```
+
+- **`local`** turns on the managed Neo4j container
+  (`spring.docker.compose.lifecycle-management=start-only` — Neo4j starts on boot and is left running
+  when the app stops).
+- **`ddd`** selects the knowledge base (use `embabel` for the Embabel one).
+- **`ANTHROPIC_API_KEY`** is auto-detected (via `embabel-agent-anthropic-autoconfigure`); swap in
+  `OPENAI_API_KEY` / `MISTRAL_API_KEY` / `DEEPSEEK_API_KEY` for another provider.
+- Content ingests on startup by default (`guide.reload-content-on-startup=true`); set
+  `GUIDE_RELOADCONTENTONSTARTUP=false` on later runs to skip re-ingestion and start faster.
+
+The app serves on `http://localhost:1337` — chat WebSocket at `/ws`, MCP SSE at `/sse`. On the first
+run, watch for the `INGESTION COMPLETE` banner. Stop with `Ctrl+C`; Neo4j keeps running (stop it with
+`docker compose down`).
+
 ## Knowledge base profiles
 
 Guide ships more than one curated knowledge base, selected by Spring profile via the
@@ -129,44 +155,20 @@ To see stats on data, make a GET request or browse to http://localhost:1337/api/
 
 RAG content storage uses the `ChunkingContentElementRepository` interface from the `embabel-agent-rag-core` library. The default backend is Neo4j via `DrivineStore`. You can plug in other backends by providing a different `ChunkingContentElementRepository` bean.
 
-## Switching the Graph Database
+## Graph database
 
-`DrivineStore` (from `embabel-agent-rag-graph`) supports three Cypher-speaking backends: **Neo4j** (default), **FalkorDB**, and **Memgraph**. The active backend is selected by Spring profile in `src/main/resources/application.yml` — each profile sets `database.dataSources.neo.type`, and `RagConfiguration` picks the matching `RagDialect` at startup.
+The RAG vector store is **Neo4j**, accessed via `DrivineStore` (from `embabel-agent-rag-graph`).
+`RagConfiguration` wires it up at startup from `database.dataSources.neo` in
+`src/main/resources/application.yml`.
 
-| Backend  | Profile    | Default port | Compose profile |
-|----------|------------|--------------|-----------------|
-| Neo4j    | `neo4j`    | `7687` (bolt)| `neo4j`         |
-| FalkorDB | `falkordb` | `6379`       | `falkordb`      |
-| Memgraph | `memgraph` | `7688` (bolt)| `memgraph`      |
-
-### Switching at startup
-
-Change `spring.profiles.active` in `application.yml`, or override at launch:
+Start Neo4j with Docker Compose:
 
 ```bash
-# Neo4j (default)
-./mvnw spring-boot:run -Dspring-boot.run.profiles=neo4j
-
-# FalkorDB
-./mvnw spring-boot:run -Dspring-boot.run.profiles=falkordb
-
-# Memgraph
-./mvnw spring-boot:run -Dspring-boot.run.profiles=memgraph
+docker compose up neo4j -d
 ```
 
-### Starting the matching container
-
-```bash
-docker compose --profile neo4j   up -d   # or falkordb / memgraph
-```
-
-Memgraph maps host port `7688` → container `7687` to avoid clashing with Neo4j, so you can run them side-by-side. FalkorDB uses Redis protocol on `6379`.
-
-### Browsing data
-
-- **Neo4j**: http://localhost:7474/browser/ (user `neo4j`, password `brahmsian`)
-- **FalkorDB**: http://localhost:3001 (FalkorDB Browser, started with the `falkordb` compose profile)
-- **Memgraph**: connect via [Memgraph Lab](https://memgraph.com/lab) to `bolt://localhost:7688`
+Neo4j listens on `7687` (bolt); browse it at http://localhost:7474/browser/ — see
+[Viewing and Deleting Data](#viewing-and-deleting-data) below.
 
 ## Viewing and Deleting Data
 
