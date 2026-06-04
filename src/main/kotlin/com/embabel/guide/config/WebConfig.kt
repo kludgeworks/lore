@@ -35,6 +35,12 @@ class WebConfig(
             .allowedMethods("GET", "POST", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)
+        // Bare /mcp needed for streamable-HTTP clients that POST to exactly /mcp
+        registry.addMapping("/mcp")
+            .allowedOriginPatterns("*")
+            .allowedMethods("GET", "POST", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true)
         registry.addMapping("/mcp/**")
             .allowedOriginPatterns("*")
             .allowedMethods("GET", "POST", "OPTIONS")
@@ -59,7 +65,9 @@ class WebConfig(
         mcpConfig.allowedMethods = listOf("GET", "POST", "OPTIONS")
         mcpConfig.allowedHeaders = listOf("*")
         mcpConfig.allowCredentials = true
+        source.registerCorsConfiguration("/sse", mcpConfig)
         source.registerCorsConfiguration("/sse/**", mcpConfig)
+        source.registerCorsConfiguration("/mcp", mcpConfig)
         source.registerCorsConfiguration("/mcp/**", mcpConfig)
 
         // Other endpoints - specific origins

@@ -30,14 +30,14 @@ public class McpResourceConfiguration {
         String name = domain.getName();
 
         StringBuilder sb = new StringBuilder();
-        sb.append(name).append(" Guide MCP server (SSE)\n\n");
+        sb.append(name).append(" Guide MCP server (streamable HTTP)\n\n");
         sb.append("Purpose:\n");
         sb.append("- Exposes documentation and references for ").append(name)
                 .append(" (").append(domain.getDescription()).append(") to MCP clients.\n");
         sb.append("- Primary use is answering ").append(name)
                 .append(" questions using MCP tools (docs_* and API lookup tools).\n\n");
         sb.append("Endpoints:\n");
-        sb.append("- SSE: http://localhost:1337/sse\n");
+        sb.append("- Streamable HTTP: http://localhost:1337/mcp\n");
         sb.append("- Tools list: http://localhost:1337/mcp/tools/list\n");
         sb.append("- Resources list: http://localhost:1337/mcp/resources/list\n\n");
 
@@ -60,7 +60,7 @@ public class McpResourceConfiguration {
         sb.append("2) Use the API/reference tools to confirm class/package signatures.\n");
         sb.append("3) If unsure, query the tools list to see the exact available tools.\n\n");
         sb.append("Notes:\n");
-        sb.append("- If running on a different port, update the SSE URL accordingly.\n");
+        sb.append("- If running on a different port, update the /mcp URL accordingly.\n");
         sb.append("- This server currently exposes MCP tools and resources (no MCP prompts).\n");
         return sb.toString();
     }

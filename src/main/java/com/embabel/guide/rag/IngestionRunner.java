@@ -95,7 +95,7 @@ public class IngestionRunner implements ApplicationRunner {
         sb.append("\n");
 
         sb.append("  Guide is running on port ").append(serverPort).append("\n");
-        sb.append("  MCP endpoint: http://localhost:").append(serverPort).append("/sse\n");
+        sb.append("  MCP endpoint: http://localhost:").append(serverPort).append("/mcp\n");
         sb.append("\n");
 
         // Print to stdout so it's visible even without log-level config

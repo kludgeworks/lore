@@ -23,12 +23,17 @@ embabel-agent-api/src/main/resources/mcp/**
 .classpath
 .project
 
+# Tool scratch dirs
+.serena/
+.workspace/
+
 # OS files
 **/.DS_Store
 .DS_Store
 
 # Logs
 **/*.log
+logs/
 
 # Environment files
 .env

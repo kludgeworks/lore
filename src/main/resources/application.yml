@@ -21,6 +21,11 @@ spring:
   profiles:
     # Default active profile when SPRING_PROFILES_ACTIVE is not set
     active: neo4j
+  ai:
+    mcp:
+      server:
+        protocol: STREAMABLE
+        keep-alive-interval: 15s
 
 # Actuator endpoints for health checks and monitoring
 management:
@@ -153,14 +158,16 @@ embabel:
   shell:
     line-length: 140
 
-  ai:
-    mcp:
-      server:
-        protocol: SSE
-        sse:
-          keep-alive-interval: 30s
 
 logging:
+  file:
+    name: logs/lore.log
+  logback:
+    rollingpolicy:
+      file-name-pattern: logs/lore.%d{yyyy-MM-dd}.%i.log.gz
+      max-file-size: 50MB
+      max-history: 10
+      total-size-cap: 500MB
   level:
     com.embabel.agent.rag: INFO
     com.embabel.agent.rag.tools: DEBUG

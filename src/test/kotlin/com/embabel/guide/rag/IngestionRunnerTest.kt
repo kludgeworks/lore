@@ -154,7 +154,7 @@ class IngestionRunnerTest {
         }
 
         assertTrue(output.contains("port 9999"), "Should show port")
-        assertTrue(output.contains("http://localhost:9999/sse"), "Should show MCP endpoint")
+        assertTrue(output.contains("http://localhost:9999/mcp"), "Should show MCP endpoint")
     }
 
     @Test
