@@ -25,13 +25,31 @@ public class IngestionRunner implements ApplicationRunner {
     @Value("${server.port:8080}")
     private int serverPort;
 
+    /**
+     * Re-ingest even when the store is already populated. Default false so ingestion runs only on the
+     * first startup (empty store). Note: directory ingestion is not idempotent — forcing a reload
+     * against a non-empty store duplicates directory-sourced content, so clear the store first.
+     */
+    @Value("${guide.force-reload:false}")
+    private boolean forceReload;
+
     public IngestionRunner(DataManager dataManager) {
         this.dataManager = dataManager;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        logger.info("IngestionRunner: starting ingestion (reload-content-on-startup=true)");
+        int existingElements = dataManager.getStats().getContentElementCount();
+        if (existingElements > 0 && !forceReload) {
+            logger.info(
+                    "IngestionRunner: store already populated ({} content elements); skipping startup "
+                            + "ingestion. Set guide.force-reload=true (after clearing the store) to re-ingest.",
+                    existingElements);
+            return;
+        }
+
+        logger.info("IngestionRunner: starting ingestion (existing elements={}, force-reload={})",
+                existingElements, forceReload);
 
         var result = dataManager.loadReferences();
 

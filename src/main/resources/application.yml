@@ -43,8 +43,13 @@ guide:
   cors:
     allowed-origins: ${GUIDE_CORS_ALLOWED_ORIGINS:}
 
-  # If true, the Guide chatbot will load content from URLs and directories on startup
+  # If true, the IngestionRunner is active on startup. It only ingests when the store is empty, so
+  # ingestion runs once on first startup and is skipped on subsequent restarts.
   reload-content-on-startup: true
+
+  # Force re-ingestion even when the store is already populated. Directory ingestion is not
+  # idempotent, so clear the store before enabling this or directory content will be duplicated.
+  force-reload: false
 
   # Projects root: absolute path, or relative to process working directory (e.g. ./embabel-projects)
   projects-path: ./embabel-projects
