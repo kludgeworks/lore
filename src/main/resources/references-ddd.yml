@@ -1,32 +1,42 @@
 # DDD / architecture foundation — code-browsing tools for the `ddd` profile.
 # Profiles that build on DDD (e.g. `embabel` via `guide.extends: ddd`) inherit these in
 # addition to their own; the Embabel framework/example repos live in references-embabel.yml.
+#
+# These external libraries are pinned to released versions via PinnedGitHubRepository (`ref:`)
+# so the code browsed matches a known release. Bump the `ref:` deliberately when upgrading.
 # ─── Architecture & DDD Tools ─────────────────────────────────────────────────────────
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/spring-projects/spring-modulith.git
+  ref: "2.0.6"
   description: Spring Modulith — opinionated application modularisation for Spring Boot.
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/xmolecules/jmolecules.git
+  ref: "2.0.1"
   description: jMolecules — libraries to express architectural abstractions in Java.
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/xmolecules/jmolecules-integrations.git
+  ref: "0.33.0"
   description: jMolecules Integrations — framework integrations for jMolecules.
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/TNG/ArchUnit.git
+  ref: v1.4.2
   description: ArchUnit — architecture testing library for Java.
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/ZenWave360/spring-modulith-events-spring-cloud-stream.git
+  ref: v1.1.1
   description: Spring Modulith event externalizer over Spring Cloud Stream (Kafka/Rabbit, JSON/Avro).
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/apple/rules_pkl.git
+  ref: v0.17.0
   description: Apple's Bazel rules for the Pkl configuration language.
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/bazelbuild/rules_jvm_external.git
+  ref: "7.0"
   description: Bazel rules for fetching and working with JVM dependencies.

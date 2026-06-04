@@ -57,6 +57,8 @@ guide:
       - https://medium.com/embabel/the-very-slowly-ticking-time-bomb-in-your-graph-persistence-stack-6da1a8da9515
       - https://medium.com/embabel/the-voice-the-word-and-the-wheel-d6e2ef2ab26e
   
+  # These Embabel example apps publish no releases, so they track main intentionally
+  # (latest usage is the point). Pin with `tag:` if/when they start releasing.
   repositories:
     - url: https://github.com/embabel/shepherd.git
     - url: https://github.com/embabel/ragbot.git

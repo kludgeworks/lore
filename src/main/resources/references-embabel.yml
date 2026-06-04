@@ -1,7 +1,10 @@
 # ─── Embabel Framework (Core) ────────────────────────────────────────────────────────
 
-- fqn: com.embabel.coding.tools.git.GitHubRepository
+# embabel-agent is pinned to its v0.4.0 release (PinnedGitHubRepository). The other Embabel repos
+# below (embabel-chat-store / -rag-neo-drivine / drivine4j) have no release tags, so they track main.
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
   url: https://github.com/embabel/embabel-agent.git
+  ref: v0.4.0
   description: >
     Embabel agent framework implementation repo.
     Look to check code under embabel-agent-api.

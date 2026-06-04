@@ -73,10 +73,12 @@ guide:
 
   repositories:
     - url: https://github.com/spring-projects/spring-ai.git
-      # tag: 1.0.0
-    - url: https://github.com/odrotbohm/spring-restbucks.git
+      tag: v1.1.1   # library — keep in lockstep with spring-ai.version in pom.xml
+    - url: https://github.com/odrotbohm/spring-restbucks.git   # no releases → tracks main
     - url: https://github.com/odrotbohm/arch-evident-spring.git
-    # Example/reference DDD + Spring Modulith applications (track main)
+      tag: steps/7   # workshop repo — pin the final step (its only stable refs)
+    # The example/reference apps below publish no releases, so they track main intentionally
+    # (per the convention in application.yml).
     - url: https://github.com/ddd-by-examples/library.git
     - url: https://github.com/xsreality/spring-modulith-with-ddd.git
     - url: https://github.com/xmolecules/jmolecules-examples.git
