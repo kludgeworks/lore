@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 
 /**
  * Exposes references and RAG configuration.
@@ -128,23 +129,40 @@ public class DataManager {
         var directoryParsingResult = hierarchicalContentReader
                 .parseFromDirectory(ft, new DirectoryParsingConfig());
 
+        // Bound concurrent document writes so a large directory doesn't exhaust the Neo4j connection
+        // pool ("pending acquisition queue is full"). Embedding is CPU-bound, so the processor count
+        // is ample parallelism while staying well under the driver's pool.
+        var writePermits = new Semaphore(Math.max(2, Runtime.getRuntime().availableProcessors()));
+
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Future<?>> futures = new ArrayList<>();
             for (var root : directoryParsingResult.getContentRoots()) {
                 futures.add(executor.submit(() -> {
                     String docTitle = "unknown";
+                    boolean acquired = false;
                     try {
+                        writePermits.acquire();
+                        acquired = true;
                         var doc = (NavigableDocument) root;
                         docTitle = doc.getTitle();
                         logger.info("Parsed root: {} with {} descendants", docTitle,
                                 Iterables.size(doc.descendants()));
                         store.writeAndChunkDocument(doc);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        synchronized (failedDocuments) {
+                            failedDocuments.add(IngestionFailure.fromException(dir + " -> " + docTitle, ie));
+                        }
                     } catch (Throwable t) {
                         logger.error("Failed to write document '{}' from directory {}: {}",
                                 docTitle, dir, t.getMessage(), t);
                         synchronized (failedDocuments) {
                             failedDocuments.add(IngestionFailure.fromException(
                                     dir + " -> " + docTitle, t));
+                        }
+                    } finally {
+                        if (acquired) {
+                            writePermits.release();
                         }
                     }
                 }));
