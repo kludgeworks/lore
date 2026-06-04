@@ -4,6 +4,7 @@ import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.mcpserver.McpToolExport;
 import com.embabel.agent.rag.graph.DrivineStore;
 import com.embabel.agent.rag.tools.ToolishRag;
+import com.embabel.guide.GuideComposition;
 import com.embabel.guide.GuideProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +20,12 @@ class McpToolExportConfiguration {
     @Bean
     McpToolExport documentationRagTools(
             DrivineStore drivineStore,
-            GuideProperties properties
+            GuideProperties properties,
+            GuideComposition guideComposition
     ) {
         var toolishRag = new ToolishRag(
                 "docs",
-                "Embabel docs",
+                guideComposition.effectiveDomain().getName() + " docs",
                 drivineStore
         );
         var activeVersion = properties.getContent().getActiveVersion();

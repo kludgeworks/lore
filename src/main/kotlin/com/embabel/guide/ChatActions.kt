@@ -54,6 +54,7 @@ class ChatActions(
     private val guideUserCache: GuideUserCache,
     private val drivineStore: DrivineStore,
     private val guideProperties: GuideProperties,
+    private val guideComposition: GuideComposition,
     private val narrationCache: NarrationCache,
     private val narratorAgent: NarratorAgent,
     private val chatService: ChatService,
@@ -224,7 +225,7 @@ class ChatActions(
             .withReference(
                 ToolishRag(
                     "docs",
-                    "Embabel docs",
+                    "${guideComposition.effectiveDomain().name} docs",
                     drivineStore,
                 ).let { rag ->
                     val filter = versionFilter()
@@ -268,7 +269,7 @@ class ChatActions(
         return mutableMapOf(
             "persona" to persona,
             "user" to userMap,
-            "domain" to guideProperties.domain,
+            "domain" to guideComposition.effectiveDomain(),
         )
     }
 

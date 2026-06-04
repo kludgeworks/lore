@@ -6,11 +6,17 @@ database:
 guide:
   references-file: references-embabel.yml
 
+  # Embabel builds on the DDD foundation: inherit the ddd profile's reference tools and
+  # domain branding (references + pronunciations). The ingested corpus and Neo4j database
+  # (codex_embabel) remain this profile's own — see GuideComposition.
+  extends: ddd
+
   # Branding/voice for this profile. Consumed by the system prompt
   # (guide_system.jinja / elements/references.jinja) via the template model.
+  # references/pronunciations below are merged with the inherited ddd ones.
   domain:
     name: Embabel
-    description: a powerful agent framework for the JVM
+    description: a powerful agent framework for the JVM, built on Spring and Domain-Driven Design foundations
     references:
       - "embabel-agent-examples: Excellent source of API examples"
       - "Embabel documentation: Use the appropriate tools to answer questions"

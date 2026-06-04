@@ -2,6 +2,8 @@ package com.embabel.guide.mcp;
 
 import com.embabel.agent.mcpserver.sync.McpResourcePublisher;
 import com.embabel.agent.mcpserver.sync.SyncResourceSpecificationFactory;
+import com.embabel.guide.DomainConfig;
+import com.embabel.guide.GuideComposition;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
@@ -12,31 +14,56 @@ import java.util.List;
 @Configuration
 public class McpResourceConfiguration {
 
-    private static final String ABOUT_CONTENT = """
-Embabel Guide MCP server (SSE)
+    private final GuideComposition guideComposition;
 
-Purpose:
-- Exposes Embabel documentation and API references to MCP clients.
-- Primary use is answering Embabel questions using MCP tools (docs_* and API lookup tools).
+    public McpResourceConfiguration(GuideComposition guideComposition) {
+        this.guideComposition = guideComposition;
+    }
 
-Endpoints:
-- SSE: http://localhost:1337/sse
-- Tools list: http://localhost:1337/mcp/tools/list
-- Resources list: http://localhost:1337/mcp/resources/list
+    /**
+     * The MCP "about" text, built from the active profile's effective domain (including anything
+     * inherited via guide.extends) so it describes the current knowledge base rather than hard-coding
+     * a single framework.
+     */
+    private String aboutContent() {
+        DomainConfig domain = guideComposition.effectiveDomain();
+        String name = domain.getName();
 
-Tool naming:
-- docs_* tools search Embabel documentation content.
-- embabel_agent_* tools resolve API signatures from Embabel packages.
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append(" Guide MCP server (SSE)\n\n");
+        sb.append("Purpose:\n");
+        sb.append("- Exposes documentation and references for ").append(name)
+                .append(" (").append(domain.getDescription()).append(") to MCP clients.\n");
+        sb.append("- Primary use is answering ").append(name)
+                .append(" questions using MCP tools (docs_* and API lookup tools).\n\n");
+        sb.append("Endpoints:\n");
+        sb.append("- SSE: http://localhost:1337/sse\n");
+        sb.append("- Tools list: http://localhost:1337/mcp/tools/list\n");
+        sb.append("- Resources list: http://localhost:1337/mcp/resources/list\n\n");
 
-Recommended usage for agents:
-1) Prefer docs_* tools to answer Embabel questions.
-2) Use embabel_agent_* tools to confirm class/package signatures.
-3) If unsure, query tools list to see exact available tools.
+        List<String> references = domain.getReferences();
+        if (!references.isEmpty()) {
+            sb.append("Key references:\n");
+            for (String reference : references) {
+                sb.append("- ").append(reference).append("\n");
+            }
+            sb.append("\n");
+        }
 
-Notes:
-- If running on a different port, update the SSE URL accordingly.
-- This server currently exposes MCP tools and resources (no MCP prompts).
-""";
+        String toolGuidance = domain.getToolGuidance();
+        if (toolGuidance != null && !toolGuidance.isBlank()) {
+            sb.append(toolGuidance).append("\n\n");
+        }
+
+        sb.append("Recommended usage for agents:\n");
+        sb.append("1) Prefer docs_* tools to answer ").append(name).append(" questions.\n");
+        sb.append("2) Use the API/reference tools to confirm class/package signatures.\n");
+        sb.append("3) If unsure, query the tools list to see the exact available tools.\n\n");
+        sb.append("Notes:\n");
+        sb.append("- If running on a different port, update the SSE URL accordingly.\n");
+        sb.append("- This server currently exposes MCP tools and resources (no MCP prompts).\n");
+        return sb.toString();
+    }
 
     @Bean
     public McpResourcePublisher guideResources() {
@@ -45,10 +72,10 @@ Notes:
             public List<SyncResourceSpecification> resources() {
                 return List.of(
                         SyncResourceSpecificationFactory.staticSyncResourceSpecification(
-                                "embabel://guide/about",
+                                "guide://about",
                                 "about",
                                 "About this MCP server and how to use it",
-                                ABOUT_CONTENT,
+                                aboutContent(),
                                 "text/plain"
                         )
                 );
@@ -56,7 +83,7 @@ Notes:
 
             @Override
             public String infoString(@Nullable Boolean verbose, int indent) {
-                return "Embabel Guide MCP resources";
+                return guideComposition.effectiveDomain().getName() + " Guide MCP resources";
             }
         };
     }

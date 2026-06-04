@@ -9,6 +9,7 @@ import com.embabel.agent.rag.model.NavigableDocument;
 import com.embabel.agent.rag.store.ChunkingContentElementRepository;
 import com.embabel.agent.rag.store.ContentElementRepositoryInfo;
 import com.embabel.agent.tools.file.FileTools;
+import com.embabel.guide.GuideComposition;
 import com.embabel.guide.GuideProperties;
 import com.embabel.guide.RepositoryConfig;
 import com.google.common.collect.Iterables;
@@ -52,6 +53,7 @@ public class DataManager {
     public DataManager(
             ChunkingContentElementRepository store,
             GuideProperties guideProperties,
+            GuideComposition guideComposition,
             HierarchicalContentReader hierarchicalContentReader,
             RepositoryIngestionService repositoryIngestionService
     ) {
@@ -59,10 +61,28 @@ public class DataManager {
         this.guideProperties = guideProperties;
         this.hierarchicalContentReader = hierarchicalContentReader;
         this.repositoryIngestionService = repositoryIngestionService;
-        this.references = LlmReferenceProviders.fromYmlFile(guideProperties.getReferencesFile());
+        this.references = loadReferences(guideComposition);
         store.provision();
         // Ingestion on startup is now handled by IngestionRunner (ApplicationRunner)
         // which is activated by guide.reload-content-on-startup=true
+    }
+
+    /**
+     * Load LLM references across the guide.extends chain (base profile first), de-duplicated by
+     * name so an extended profile (e.g. embabel extends ddd) exposes both the base and child
+     * reference tools without duplicates.
+     */
+    private static List<LlmReference> loadReferences(GuideComposition guideComposition) {
+        var seen = new java.util.HashSet<String>();
+        var merged = new ArrayList<LlmReference>();
+        for (String referencesFile : guideComposition.referenceFiles()) {
+            for (LlmReference reference : LlmReferenceProviders.fromYmlFile(referencesFile)) {
+                if (seen.add(reference.getName())) {
+                    merged.add(reference);
+                }
+            }
+        }
+        return List.copyOf(merged);
     }
 
     public ContentElementRepositoryInfo getStats() {

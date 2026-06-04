@@ -1,37 +1,6 @@
-# ─── Embabel Framework (Core) ────────────────────────────────────────────────────────
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/embabel/embabel-agent.git
-  description: >
-    Embabel agent framework implementation repo.
-    Look to check code under embabel-agent-api.
-    For questions related to framework internals, not usage examples.
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/embabel/embabel-chat-store.git
-  description: >
-    Embabel chat store implementation.
-    Chat session persistence and history management.
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/embabel/embabel-agent-rag-neo-drivine.git
-  description: >
-    Embabel RAG Neo4j integration using Drivine.
-    RAG vector store implementation backed by Neo4j.
-
-- fqn: com.embabel.coding.tools.api.ApiReferenceProvider
-  name: embabel-agent
-  description: Embabel Agent API - use to check type signatures
-  acceptedPackages:
-    - com.embabel.agent
-    - com.embabel.common
-
-- fqn: com.embabel.coding.tools.git.GitHubRepository
-  url: https://github.com/liberation-data/drivine4j.git
-  description: >
-    Drivine4j: Graph database connectivity library for the JVM.
-    Used by Embabel for Neo4j persistence.
-
+# DDD / architecture foundation — code-browsing tools for the `ddd` profile.
+# Profiles that build on DDD (e.g. `embabel` via `guide.extends: ddd`) inherit these in
+# addition to their own; the Embabel framework/example repos live in references-embabel.yml.
 # ─── Architecture & DDD Tools ─────────────────────────────────────────────────────────
 
 - fqn: com.embabel.coding.tools.git.GitHubRepository

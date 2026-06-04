@@ -94,6 +94,13 @@ data class GuideProperties(
     @DefaultValue("references.yml")
     @field:NotBlank(message = "referencesFile must not be blank")
     val referencesFile: String,
+    /**
+     * Optional base profile this profile extends (e.g. embabel extends ddd). The child inherits the
+     * base's reference tool files and domain references/pronunciations (capability + branding only);
+     * it does NOT inherit the ingested corpus (content/repositories), database, or scalar domain
+     * fields. Resolved by [GuideComposition].
+     */
+    val extends: String? = null,
     @NestedConfigurationProperty val domain: DomainConfig,
     @NestedConfigurationProperty val content: ContentConfig,
     @DefaultValue("")
