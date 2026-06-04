@@ -122,8 +122,10 @@ embabel:
       title-after-message-count: 6
 
   models:
-    # Local ONNX embedding model (no API key needed)
-    default-embedding-model: nomic-embed-text-v1.5
+    # Local ONNX embedding model (no API key needed). Must match the model the ONNX
+    # auto-config registers (its default is all-MiniLM-L6-v2); both RAG and the chat
+    # store resolve the default embedding service by this name.
+    default-embedding-model: all-MiniLM-L6-v2
 
     # Fake LLM — real models are resolved per-user via BYOK (UserLlmResolver)
     default-llm: setup-required
@@ -185,9 +187,8 @@ database:
       host: ${NEO4J_HOST:localhost}
       port: 7687
       protocol: ${NEO4J_PROTOCOL:bolt}
-      # Each profile overrides databaseName to keep its vector store isolated.
-      # application-embabel.yml → lore_embabel
-      # application-ddd.yml    → lore_ddd
-      databaseName: lore
+      # Neo4j Community supports only the single default `neo4j` database, so all profiles share it.
+      # (Per-profile isolated databases — e.g. lore_embabel / lore_ddd — would require Neo4j Enterprise.)
+      databaseName: neo4j
 
 

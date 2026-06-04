@@ -66,19 +66,21 @@ run, watch for the `INGESTION COMPLETE` banner. Stop with `Ctrl+C`; Neo4j keeps 
 ## Knowledge base profiles
 
 Guide ships more than one curated knowledge base, selected by Spring profile via the
-`GUIDE_PROFILE` environment variable. Each profile is fully isolated — it has its own
-Neo4j database, its own ingested content, its own reference tools, and its own system-prompt
-branding (`guide.domain`), so the chatbot introduces itself appropriately for the active domain.
+`GUIDE_PROFILE` environment variable. Each profile has its own ingested content, reference tools, and
+system-prompt branding (`guide.domain`), so the chatbot introduces itself appropriately for the active
+domain.
 
-| Profile   | `GUIDE_PROFILE` | Neo4j DB        | Content                                                  | Config files |
-|-----------|-----------------|-----------------|----------------------------------------------------------|--------------|
-| Embabel   | `embabel`       | `lore_embabel` | The Embabel Agent Framework — docs, blogs, examples      | `application-embabel.yml`, `references-embabel.yml` |
-| DDD       | `ddd`           | `lore_ddd`     | Domain-Driven Design, Sliced Onion & Spring Modulith     | `application-ddd.yml`, `references-ddd.yml` |
+| Profile   | `GUIDE_PROFILE` | Content                                                  | Config files |
+|-----------|-----------------|----------------------------------------------------------|--------------|
+| Embabel   | `embabel`       | The Embabel Agent Framework — docs, blogs, examples      | `application-embabel.yml`, `references-embabel.yml` |
+| DDD       | `ddd`           | Domain-Driven Design, Sliced Onion & Spring Modulith     | `application-ddd.yml`, `references-ddd.yml` |
+
+All profiles share the single Neo4j `neo4j` database — Neo4j Community supports only one database, so
+switch profiles by re-ingesting (per-profile isolated databases would require Neo4j Enterprise).
 
 The `embabel` profile **extends** `ddd` (`guide.extends: ddd`, resolved by `GuideComposition`): it
 inherits the DDD reference tools and domain branding — so the Embabel assistant presents itself as
-built on Spring/DDD — while keeping its own isolated database and ingested content. The `ddd` profile
-is standalone.
+built on Spring/DDD — while keeping its own ingested content. The `ddd` profile is standalone.
 
 Branding for each profile lives in its `guide.domain` block (name, description, key references,
 tool guidance, and TTS pronunciations); the base fallback is in `application.yml`. To add curated
@@ -127,7 +129,7 @@ The ingest scripts are the simplest way to run locally — each one starts Neo4j
 clears it, ingests the selected profile's content on startup, and runs the app in the foreground:
 
 ```bash
-GUIDE_PROFILE=ddd ./scripts/fresh-ingest.sh      # wipe lore_ddd, then ingest + run
+GUIDE_PROFILE=ddd ./scripts/fresh-ingest.sh      # wipe Neo4j content, then ingest + run
 GUIDE_PROFILE=ddd ./scripts/append-ingest.sh     # keep existing data, ingest new + run
 ```
 

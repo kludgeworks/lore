@@ -1,8 +1,3 @@
-database:
-  dataSources:
-    neo:
-      databaseName: lore_ddd
-
 guide:
   references-file: references-ddd.yml
 
@@ -31,8 +26,7 @@ guide:
   content:
     # This profile does not track a versioned documentation set. Override the
     # base config's Embabel docs (application.yml) to an empty version list so
-    # nothing from docs.embabel.com is ingested into lore_ddd and no version
-    # filter is applied to DDD chat.
+    # nothing from docs.embabel.com is ingested and no version filter is applied to DDD chat.
     versioned:
       versions: []
 
