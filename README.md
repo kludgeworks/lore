@@ -59,7 +59,7 @@ SPRING_PROFILES_ACTIVE=local,ddd ./mvnw spring-boot:run
 - Content ingests on startup by default (`guide.reload-content-on-startup=true`); set
   `GUIDE_RELOADCONTENTONSTARTUP=false` on later runs to skip re-ingestion and start faster.
 
-The app serves on `http://localhost:1337` — chat WebSocket at `/ws`, MCP SSE at `/sse`. On the first
+The app serves on `http://localhost:1337` — chat WebSocket at `/ws`, MCP (streamable HTTP) at `/mcp`. On the first
 run, watch for the `INGESTION COMPLETE` banner. Stop with `Ctrl+C`; Neo4j keeps running (stop it with
 `docker compose down`).
 
@@ -136,7 +136,7 @@ GUIDE_PROFILE=ddd ./scripts/append-ingest.sh     # keep existing data, ingest ne
 Set `GUIDE_PROFILE` to `embabel` or `ddd` (or your own `application-<name>.yml`); it can also live in
 a local `.env`. The scripts export `SPRING_PROFILES_ACTIVE=local,<profile>` and run
 `./mvnw spring-boot:run`. The server starts on `http://localhost:1337` — chat WebSocket at `/ws`,
-MCP SSE at `/sse`, REST under `/api`. Watch for the `INGESTION COMPLETE` banner.
+MCP (streamable HTTP) at `/mcp`, REST under `/api`. Watch for the `INGESTION COMPLETE` banner.
 
 To run **without** re-ingesting (serve the data already in Neo4j), start Neo4j and the app directly:
 
@@ -188,7 +188,14 @@ DETACH DELETE n
 
 ## Exposing MCP Tools
 
-Starting the server will expose MCP tools on `http://localhost:1337/sse`.
+Starting the server exposes the Lore MCP tools over **streamable HTTP** at
+`http://localhost:1337/mcp`. (Earlier versions served SSE on `/sse`; that transport has been
+retired and `/sse` now returns 403.)
+
+The server runs in **stateful** streamable-HTTP mode: it issues an `Mcp-Session-Id` on `initialize`
+that the client must echo on later requests. Most clients handle this transparently, but a few
+(notably Antigravity's built-in client) complete `initialize` and then stall before listing tools —
+those must be bridged through [`mcp-remote`](https://github.com/geelen/mcp-remote) (see below).
 
 ### Verifying With MCP Inspector (Optional)
 
@@ -198,47 +205,69 @@ An easy way to verify the tools are exposed and experiment with calling them is 
 npx @modelcontextprotocol/inspector
 ```
 
-Within the inspector UI, connect to `http://localhost:1337/sse`.
+Within the inspector UI, choose the **Streamable HTTP** transport and connect to
+`http://localhost:1337/mcp`.
 
 ## Consuming the Lore MCP Server
 
-- [Claude Desktop](#claude-desktop)
+The endpoint is `http://localhost:1337/mcp` (streamable HTTP, no auth on loopback). Two rules apply
+to every client:
+
+- **No trailing slash** — `POST /mcp/` returns 403; use `/mcp` exactly.
+- **Native vs. bridged** — clients with a solid streamable-HTTP implementation connect directly to
+  the URL. Clients whose built-in client stalls on the stateful session handshake must bridge
+  through `mcp-remote` with `--transport http-only`.
+
+| Client         | Connects        | Config shape                            |
+|----------------|-----------------|-----------------------------------------|
+| Claude Code    | native          | `type: http`, `url: …/mcp`              |
+| Codex          | native          | `url = "…/mcp"`                         |
+| Copilot CLI    | native          | `type: http`, `url: …/mcp`              |
+| Claude Desktop | `mcp-remote`    | `command: npx … mcp-remote … http-only` |
+| Antigravity    | `mcp-remote`    | `command: npx … mcp-remote … http-only` |
+| Cursor         | `mcp-remote`    | `command: npx … mcp-remote … http-only` |
+
 - [Claude Code](#claude-code)
 - [Codex](#codex)
-- [Cursor](#cursor)
 - [Antigravity](#antigravity)
+- [Claude Desktop](#claude-desktop)
+- [Cursor](#cursor)
 - [Copilot CLI](#copilot-cli)
 
 ### Verifying the Server is Running
 
-Before configuring a client, confirm the server is up and returning SSE headers:
+Before configuring a client, confirm the streamable endpoint answers an `initialize` POST:
 
 ```bash
-curl -i --max-time 3 http://localhost:1337/sse
+curl -i --max-time 5 -X POST http://localhost:1337/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"0"}}}'
 ```
 
-If you're running the server on a different port (for example `1338`), update the URL accordingly.
+A `200` response carrying an `Mcp-Session-Id` header means the server is healthy. If you're running
+on a different port, update the URL accordingly.
 
 ### Claude Desktop
 
-Add this stanza to `claude_desktop_config.json`:
+Claude Desktop's config only supports stdio servers, so bridge the streamable endpoint through
+`mcp-remote`. Add this stanza to `claude_desktop_config.json`:
 
-```yml
+```json
 {
   "mcpServers": {
-
     "lore-dev": {
       "command": "npx",
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:1337/sse",
+        "http://localhost:1337/mcp",
         "--transport",
-        "sse-only"
+        "http-only"
       ]
-    },
-                  ...
+    }
   }
+}
 ```
 
 See [Connect Local Servers](https://modelcontextprotocol.io/docs/develop/connect-local-servers) for detailed
@@ -256,11 +285,14 @@ If you're using Claude Code, adding the Lore MCP server will
 powerfully augment its capabilities for working on Embabel applications
 and helping you learn Embabel.
 
+Claude Code speaks streamable HTTP natively:
+
 ```bash
-claude mcp add lore --transport sse http://localhost:1337/sse
+claude mcp add lore --transport http http://localhost:1337/mcp
 ```
 
-Within the Claude Code shell, type `/mcp` to test the connection. Choose the number of the `lore` server to check its
+This writes a `{ "type": "http", "url": "http://localhost:1337/mcp" }` entry. Within the Claude Code
+shell, type `/mcp` to test the connection. Choose the number of the `lore` server to check its
 status.
 
 Start via `claude --debug` to see more logging.
@@ -285,14 +317,14 @@ how permissions work.
 
 ### Codex
 
-Create or update `.codex/config.toml` and add the following MCP server entry:
+Codex connects to the streamable URL directly. Create or update `~/.codex/config.toml` and add:
 
 ```toml
 [mcp_servers.lore]
-command = "npx"
-args = ["-y", "mcp-remote", "http://localhost:1337/sse", "--transport", "sse-only"]
-startup_timeout_sec = 60
-tool_timeout_sec = 120
+url = "http://127.0.0.1:1337/mcp"
+# Optional timeouts:
+# startup_timeout_sec = 60
+# tool_timeout_sec = 120
 ```
 
 ### Cursor
@@ -303,7 +335,8 @@ Cursor MCP config (Linux):
 
 - `~/.cursor/mcp.json`
 
-Example (recommended: use `mcp-remote` as a stdio bridge for SSE):
+Bridge the streamable endpoint through `mcp-remote` (Cursor's built-in client is unreliable with
+the stateful session):
 
 ```json
 {
@@ -313,34 +346,21 @@ Example (recommended: use `mcp-remote` as a stdio bridge for SSE):
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:1337/sse",
+        "http://localhost:1337/mcp",
         "--transport",
-        "sse-only"
+        "http-only"
       ]
     }
   }
 }
 ```
-
-#### Reload to Reconnect
-
-If you start the server after Cursor is already running, or if the server was temporarily down, Cursor may not
-automatically respawn the MCP process. In Cursor:
-
-- **Command Palette** → **Developer: Reload Window**
-
-You should then see the MCP server listed with tools enabled:
-
-![Cursor Installed MCP Servers](images/cursor-mcp-installed-servers.svg)
 
 ### Antigravity
 
-#### Configuration
-
-- Open the MCP store via the "..." dropdown at the top of the editor's agent panel.
-- Click on "Manage MCP Servers"
-- Click on "View raw config"
-- Modify the mcp_config.json with Lore MCP server configuration.
+Antigravity's built-in MCP client (a Go HTTP client) completes `initialize` against a direct
+`serverUrl` but then **stalls** — it never lists tools, leaving the server stuck on an orange
+status. Bridge through `mcp-remote` instead — Antigravity accepts a `command`-based stdio server.
+Config lives in `~/.gemini/config/mcp_config.json`:
 
 ```json
 {
@@ -350,17 +370,17 @@ You should then see the MCP server listed with tools enabled:
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:1337/sse",
+        "http://127.0.0.1:1337/mcp",
         "--transport",
-        "sse-only"
+        "http-only"
       ]
     }
   }
 }
 ```
 
-Follow the official instructions for the troubleshooting.
-https://antigravity.google/docs/mcp#connecting-custom-mcp-servers
+> **Do not** use `"serverUrl": "…/mcp"` here: it connects but exposes no tools (the stall described
+> above). `"httpUrl"` is also rejected — Antigravity only accepts `serverUrl` or `command`.
 
 ### Copilot CLI
 
@@ -372,8 +392,8 @@ https://antigravity.google/docs/mcp#connecting-custom-mcp-servers
 {
   "mcpServers": {
     "lore-dev": {
-      "type": "sse",
-      "url": "http://localhost:1337/sse",
+      "type": "http",
+      "url": "http://localhost:1337/mcp",
       "tools": [
         "*"
       ]
@@ -558,9 +578,9 @@ If port `1337` is already in use (for example, the `chatbot` app is running), ov
 GUIDE_PORT=1338 docker compose --profile java up --build -d
 ```
 
-This maps container port `1337` → host port `1338`, so MCP SSE becomes:
+This maps container port `1337` → host port `1338`, so the MCP endpoint becomes:
 
-- `http://localhost:1338/sse`
+- `http://localhost:1338/mcp`
 
 #### Compose config overrides
 
@@ -594,10 +614,13 @@ OPENAI_API_KEY=sk-... docker compose --profile java up --build -d
 
 ```bash
 PORT=${GUIDE_PORT:-1337}
-curl -i --max-time 3 "http://localhost:${PORT}/sse"
+curl -i --max-time 5 -X POST "http://localhost:${PORT}/mcp" \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"0"}}}'
 ```
 
-You should see `Content-Type: text/event-stream` and an `event:endpoint` line.
+You should get a `200` with an `Mcp-Session-Id` response header.
 
 #### Stop
 
