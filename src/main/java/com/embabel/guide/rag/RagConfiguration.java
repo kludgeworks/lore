@@ -119,7 +119,15 @@ class RagConfiguration {
         var creator = new BeanNameAutoProxyCreator();
         creator.setBeanNames("drivineStore");
         creator.setInterceptorNames("drivineTransactionInterceptor");
-        creator.setProxyTargetClass(true);
+        // Use a JDK interface proxy, NOT CGLIB. DrivineStore's write methods
+        // (writeAndChunkDocument / onNewRetrievables) are final, so a CGLIB subclass proxy cannot
+        // advise them and — being built via Objenesis without running the constructor — would invoke
+        // them on a proxy whose `logger` field is null (NPE during ingestion). A JDK proxy delegates
+        // every interface call to the real target instead, so final methods run on the constructed
+        // DrivineStore (logger intact) and still participate in the transaction. Consumers must inject
+        // an interface DrivineStore implements (ChunkingContentElementRepository / SearchOperations),
+        // not the concrete class.
+        creator.setProxyTargetClass(false);
         return creator;
     }
 

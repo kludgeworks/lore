@@ -2,7 +2,7 @@ package com.embabel.guide.rag;
 
 import com.embabel.agent.filter.PropertyFilter;
 import com.embabel.agent.mcpserver.McpToolExport;
-import com.embabel.agent.rag.graph.DrivineStore;
+import com.embabel.agent.rag.service.SearchOperations;
 import com.embabel.agent.rag.tools.ToolishRag;
 import com.embabel.guide.GuideComposition;
 import com.embabel.guide.GuideProperties;
@@ -19,14 +19,14 @@ class McpToolExportConfiguration {
 
     @Bean
     McpToolExport documentationRagTools(
-            DrivineStore drivineStore,
+            SearchOperations searchOperations,
             GuideProperties properties,
             GuideComposition guideComposition
     ) {
         var toolishRag = new ToolishRag(
                 "docs",
                 guideComposition.effectiveDomain().getName() + " docs",
-                drivineStore
+                searchOperations
         );
         var activeVersion = properties.getContent().getActiveVersion();
         if (activeVersion != null) {
