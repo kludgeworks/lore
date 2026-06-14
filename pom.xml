@@ -19,6 +19,7 @@
     <properties>
         <java.version>26</java.version>
         <embabel-agent.version>0.4.0-SNAPSHOT</embabel-agent.version>
+        <drivine.version>0.0.45</drivine.version>
         <spring-ai.version>1.1.1</spring-ai.version>
         <kotlin.version>2.2.0</kotlin.version>
         <!-- Override Spring Boot's managed JaCoCo (0.8.12 cannot instrument JDK 26 bytecode) -->
@@ -49,7 +50,7 @@
         <dependency>
             <groupId>org.drivine</groupId>
             <artifactId>drivine4j-spring-boot-starter</artifactId>
-            <version>0.0.38</version>
+            <version>${drivine.version}</version>
         </dependency>
 
         <!-- Chat session storage with autoconfiguration -->
@@ -244,7 +245,7 @@
                     <dependency>
                         <groupId>org.drivine</groupId>
                         <artifactId>drivine4j-codegen</artifactId>
-                        <version>0.0.38</version>
+                        <version>${drivine.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
