@@ -8,3 +8,14 @@ fnox = "latest"
 
 [shell_alias]
 mvnw = "mvn"
+
+[tasks.fresh-ingest]
+description = "Wipe Neo4j and re-ingest all content for the given profile"
+run = """
+JAVA_HOME=$(mise where java) \
+GUIDE_PROFILE=${GUIDE_PROFILE:-ddd} \
+ANTHROPIC_API_KEY="$(op read 'op://Personal/claude.ai/personal-mac-token')" \
+./scripts/fresh-ingest.sh
+"""
+
+#ANTHROPIC_API_KEY="$(op read 'op://Personal/claude.ai/personal-mac-token')" SPRING_PROFILES_ACTIVE=local,embabel ./mvnw spring-boot:run

@@ -40,3 +40,98 @@
   url: https://github.com/bazelbuild/rules_jvm_external.git
   ref: "7.0"
   description: Bazel rules for fetching and working with JVM dependencies.
+
+# ─── Embabel Framework (Core) ────────────────────────────────────────────────────────
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/embabel-agent.git
+  description: >
+      Embabel agent framework implementation repo.
+      Look to check code under embabel-agent-api.
+      For questions related to framework internals, not usage examples.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/embabel-chat-store.git
+  description: >
+      Embabel chat store implementation.
+      Chat session persistence and history management.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/embabel-agent-rag-neo-drivine.git
+  description: >
+      Embabel RAG Neo4j integration using Drivine.
+      RAG vector store implementation backed by Neo4j.
+
+- fqn: com.embabel.coding.tools.api.ApiReferenceProvider
+  name: embabel-agent
+  description: Embabel Agent API - use to check type signatures
+  acceptedPackages:
+      - com.embabel.agent
+      - com.embabel.common
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/liberation-data/drivine4j.git
+  description: >
+      Drivine4j: Graph database connectivity library for the JVM.
+      Used by Embabel for Neo4j persistence.
+
+# ─── Embabel Framework (Core) ────────────────────────────────────────────────────────
+
+# embabel-agent is pinned to its v0.4.0 release (PinnedGitHubRepository). The other Embabel repos
+# below (embabel-chat-store / -rag-neo-drivine / drivine4j) have no release tags, so they track main.
+- fqn: com.embabel.guide.references.PinnedGitHubRepository
+  url: https://github.com/embabel/embabel-agent.git
+  ref: v0.4.0
+  description: >
+      Embabel agent framework implementation repo.
+      Look to check code under embabel-agent-api.
+      For questions related to framework internals, not usage examples.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/embabel-chat-store.git
+  description: >
+      Embabel chat store implementation.
+      Chat session persistence and history management.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/embabel-agent-rag-neo-drivine.git
+  description: >
+      Embabel RAG Neo4j integration using Drivine.
+      RAG vector store implementation backed by Neo4j.
+
+- fqn: com.embabel.coding.tools.api.ApiReferenceProvider
+  name: embabel-agent
+  description: Embabel Agent API - use to check type signatures
+  acceptedPackages:
+      - com.embabel.agent
+      - com.embabel.common
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/liberation-data/drivine4j.git
+  description: >
+      Drivine4j: Graph database connectivity library for the JVM.
+      Used by Embabel for Neo4j persistence.
+
+# ─── Embabel Examples ─────────────────────────────────────────────────────────
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/java-agent-template.git
+  description: >
+      Java agent template: simplest Java example with Maven.
+      Can be used as a GitHub template.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/tripper.git
+  description: Tripper — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/urbot.git
+  description: urbot — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/impromptu.git
+  description: impromptu — example Embabel application.
+
+- fqn: com.embabel.coding.tools.git.GitHubRepository
+  url: https://github.com/embabel/dice.git
+  description: dice — example Embabel application.
